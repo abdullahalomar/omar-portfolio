@@ -7,14 +7,14 @@ export default function ResumeSection() {
   const experiences = [
     {
       period: "2023 - Present",
-      role: "Lead SQA & Automation Engineer",
+      role: "SQA & Automation Engineer",
       company: "Enterprise QA Labs",
       description: "Spearheaded enterprise Playwright & Cypress automation architecture across 12 microservices. Reduced release regression cycle duration from 5 days to 45 minutes with parallel Docker execution.",
       skills: ["Playwright", "TypeScript", "CI/CD", "Docker", "JMeter", "K8s"],
     },
     {
       period: "2021 - 2023",
-      role: "Senior Automation QA Engineer",
+      role: "Automation QA Engineer",
       company: "FinTech Quality Systems",
       description: "Built end-to-end API test suites using Postman and REST Assured for high-volume payment processing systems. Achieved 99.8% test coverage and eliminated critical production leaks.",
       skills: ["Postman", "REST Assured", "Java", "Selenium", "SQL", "Jenkins"],

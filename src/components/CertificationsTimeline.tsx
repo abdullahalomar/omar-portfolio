@@ -33,7 +33,7 @@ export default function CertificationsTimeline() {
 
   const experiences = [
     {
-      role: "Lead SQA & Test Automation Architect",
+      role: "SQA & Test Automation Architect",
       company: "TechCorp Global",
       period: "2023 - Present",
       location: "San Francisco, CA (Remote)",
@@ -44,7 +44,7 @@ export default function CertificationsTimeline() {
       ],
     },
     {
-      role: "Senior Software QA Engineer",
+      role: "Software QA Engineer",
       company: "DataScale Cloud Systems",
       period: "2021 - 2023",
       location: "Austin, TX",

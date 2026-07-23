@@ -31,7 +31,7 @@ export default function UniqueFooter() {
               </div>
               <div>
                 <div className="font-extrabold text-slate-100 text-base">Abdullah Al Omar</div>
-                <div className="text-xs text-cyan-400">Senior SQA & Automation Test Architect</div>
+                <div className="text-xs text-cyan-400">SQA Engineer</div>
               </div>
             </div>
 

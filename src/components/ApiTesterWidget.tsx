@@ -36,7 +36,7 @@ export default function ApiTesterWidget() {
       url: "https://api.qa-studio.io/v1/auth/login",
       description: "Validates user credentials, returns JWT bearer token & sets secure HTTP-only cookies.",
       headers: { "Content-Type": "application/json", "X-Api-Key": "qa-sec-token-2026" },
-      body: JSON.stringify({ email: "sqa.lead@company.com", password: "••••••••••••" }, null, 2),
+      body: JSON.stringify({ email: "sqa.engineer@company.com", password: "••••••••••••" }, null, 2),
       responseStatus: 200,
       statusText: "OK",
       responseTime: "78ms",
@@ -44,7 +44,7 @@ export default function ApiTesterWidget() {
         status: "success",
         data: {
           user_id: "usr_982410a",
-          role: "SQA_LEAD",
+          role: "SQA_ENGINEER",
           token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
           expires_in: 86400,
           permissions: ["READ_TESTS", "EXECUTE_PIPELINE", "DESTRUCTIVE_CLEANUP"],

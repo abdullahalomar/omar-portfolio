@@ -31,7 +31,7 @@ export default function AboutMeSection() {
             About <span className="text-gradient-cyan">Abdullah Al Omar</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Dedicated Senior SQA & Automation Architect with 5+ years of leadership, driving zero-defect software releases through user empathy and resilient test frameworks.
+            Dedicated SQA Engineer driving zero-defect software releases through user empathy and resilient test frameworks.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export default function AboutMeSection() {
 
                 <div>
                   <h3 className="text-xl font-extrabold text-white">Abdullah Al Omar</h3>
-                  <p className="text-xs font-mono text-cyan-400 font-medium">Senior SQA & Automation Specialist</p>
+                  <p className="text-xs font-mono text-cyan-400 font-medium">SQA Engineer</p>
                   <div className="flex items-center gap-1 text-[11px] text-slate-400 font-mono mt-1">
                     <MapPin className="w-3 h-3 text-rose-400 shrink-0" />
                     <span>Dhaka, Bangladesh &bull; Remote Worldwide</span>
@@ -65,7 +65,7 @@ export default function AboutMeSection() {
                     <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
                     Experience:
                   </span>
-                  <span className="text-slate-100 font-bold">5+ Years SQA Leadership</span>
+                  <span className="text-slate-100 font-bold">5+ Years SQA Experience</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 rounded-xl bg-[#050810] border border-slate-800/80">
@@ -200,7 +200,7 @@ export default function AboutMeSection() {
                     <div className="p-3 bg-[#050810] rounded-xl border border-slate-800/80 flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-slate-100 font-bold">Team Leadership</div>
+                        <div className="text-slate-100 font-bold">Quality Engineering</div>
                         <div className="text-[10px] text-slate-400">Mentoring engineers in BDD</div>
                       </div>
                     </div>

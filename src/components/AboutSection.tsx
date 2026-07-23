@@ -37,7 +37,7 @@ export default function AboutSection() {
           Every defect caught early saves <span className="text-sky-500 dark:text-[#38bdf8]">10x cost & effort</span> in production.
         </h2>
         <p className="text-base text-slate-600 dark:text-[#999999] leading-relaxed max-w-2xl">
-          I am Abdullah Al Omar, a dedicated Senior Software Quality Assurance Engineer with over 6 years of expertise. My approach goes beyond manual bug hunting — I engineer scalable test automation frameworks, continuous testing pipelines, and comprehensive quality assurance systems that empower software teams to ship fast with 100% confidence.
+          I am Abdullah Al Omar, a dedicated Software Quality Assurance Engineer. My approach goes beyond manual bug hunting — I engineer scalable test automation frameworks, continuous testing pipelines, and comprehensive quality assurance systems that empower software teams to ship fast with 100% confidence.
         </p>
       </div>
 

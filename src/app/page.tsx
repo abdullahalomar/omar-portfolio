@@ -9,8 +9,8 @@ import FeaturedProjectsSection from "@/components/FeaturedProjectsSection";
 import ContactFormSection from "@/components/ContactFormSection";
 
 export const metadata = {
-  title: "Abdullah Al Omar | Senior SQA Engineer & Automation Lead",
-  description: "Portfolio of Abdullah Al Omar - Senior Software Quality Assurance Engineer & Test Automation Specialist specializing in Playwright, Selenium, Postman, and JMeter.",
+  title: "Abdullah Al Omar | SQA Engineer",
+  description: "Portfolio of Abdullah Al Omar - Software Quality Assurance Engineer specializing in Playwright, Selenium, Postman, and JMeter.",
 };
 
 export default function Home() {

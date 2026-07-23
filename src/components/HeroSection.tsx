@@ -17,7 +17,7 @@ export default function HeroSection() {
               src="/images/omar-portrait.png"
               alt="Abdullah - SQA Engineer"
               fill
-              className="object-cover object-top"
+              className="object-cover object-center"
               priority
             />
           </div>

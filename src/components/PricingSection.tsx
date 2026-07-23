@@ -40,7 +40,7 @@ export default function PricingSection() {
       ],
     },
     {
-      title: "Dedicated SQA Lead Consulting",
+      title: "Dedicated SQA Consulting",
       price: "$3,200",
       period: "per month",
       popular: false,

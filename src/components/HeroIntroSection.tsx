@@ -21,7 +21,7 @@ export default function HeroIntroSection() {
       <div className="space-y-4">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
           Say Hi from <span className="text-sky-500 dark:text-[#38bdf8]">Abdullah</span>,<br />
-          <span className="text-slate-900 dark:text-white">SQA Engineer</span> and <span className="text-sky-500 dark:text-[#38bdf8]">Automation Lead</span>.
+          <span className="text-sky-500 dark:text-[#38bdf8]">SQA Engineer</span>.
         </h1>
         <p className="text-base md:text-lg text-slate-600 dark:text-[#999999] leading-relaxed max-w-2xl pt-2">
           I specialize in building bulletproof test automation frameworks, CI/CD quality gates, API regression suites, and high-concurrency performance benchmarks so products deploy faster with zero critical defects.

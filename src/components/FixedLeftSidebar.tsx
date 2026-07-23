@@ -33,9 +33,9 @@ export default function FixedLeftSidebar() {
         <div className="relative w-full aspect-square max-w-[280px] mx-auto mb-6 rounded-2xl overflow-hidden border border-slate-200 dark:border-[#333333] group bg-slate-100 dark:bg-[#161616]">
           <Image
             src="/abdullah-profile.png"
-            alt="Abdullah Al Omar - Senior SQA Engineer"
+            alt="Abdullah Al Omar - SQA Engineer"
             fill
-            className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+            className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 dark:from-[#111111]/80 via-transparent to-transparent opacity-60" />
@@ -47,7 +47,7 @@ export default function FixedLeftSidebar() {
             Abdullah Al Omar
           </h2>
           <p className="text-sm text-slate-600 dark:text-[#999999] font-medium leading-snug">
-            Senior Software Quality Assurance Engineer & Test Automation Specialist
+            Software Quality Assurance Engineer & Test Automation Specialist
           </p>
           
           <div className="pt-2 flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-[#888888]">
@@ -56,16 +56,6 @@ export default function FixedLeftSidebar() {
           </div>
         </div>
 
-        {/* Status Badge */}
-        <div className="mb-6 bg-slate-100 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] rounded-xl p-3 flex items-center justify-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 dark:bg-[#38bdf8] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500 dark:bg-[#38bdf8]"></span>
-          </span>
-          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            Available for Freelance & Roles
-          </span>
-        </div>
 
         {/* Social Links Bar */}
         <div className="flex items-center justify-center gap-3 mb-6">
