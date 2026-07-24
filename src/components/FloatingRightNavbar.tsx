@@ -8,6 +8,7 @@ import {
   Wrench, 
   Zap, 
   FolderKanban, 
+  BookOpen,
   Mail 
 } from "lucide-react";
 
@@ -19,6 +20,10 @@ interface NavItem {
   icon: React.ElementType;
 }
 
+interface FloatingRightNavbarProps {
+  isDesktopInColumn?: boolean;
+}
+
 const navItems: NavItem[] = [
   { id: "home", label: "Home", icon: Home },
   { id: "about", label: "About", icon: User },
@@ -26,10 +31,11 @@ const navItems: NavItem[] = [
   { id: "services", label: "Specializations", icon: Wrench },
   { id: "skills", label: "Skills", icon: Zap },
   { id: "projects", label: "Projects", icon: FolderKanban },
+  { id: "blog", label: "Blog", icon: BookOpen },
   { id: "contact", label: "Contact", icon: Mail },
 ];
 
-export default function FloatingRightNavbar() {
+export default function FloatingRightNavbar({ isDesktopInColumn = false }: FloatingRightNavbarProps) {
   const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
@@ -63,9 +69,13 @@ export default function FloatingRightNavbar() {
 
   return (
     <>
-      {/* Desktop Floating Right Navbar */}
+      {/* Desktop Right Navbar */}
       <nav 
-        className="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-3.5 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-md border border-slate-200 dark:border-[#2a2a2a] rounded-full py-5 px-3 shadow-2xl items-center transition-colors duration-300"
+        className={`${
+          isDesktopInColumn 
+            ? "relative hidden lg:flex" 
+            : "fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex"
+        } flex-col gap-3.5 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-md border border-slate-200 dark:border-[#2a2a2a] rounded-full py-5 px-3 shadow-2xl items-center transition-colors duration-300`}
         aria-label="Section Navigation"
       >
         <ThemeToggle />

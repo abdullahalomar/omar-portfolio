@@ -8,9 +8,12 @@ import {
   Star,
   Building2,
 } from "lucide-react";
+import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function CertificationsTimeline() {
-  const certs = [
+  const { certifications, profile } = usePortfolioData();
+
+  const defaultCerts = [
     {
       title: "ISTQB Certified Test Automation Engineer (CTAE)",
       issuer: "International Software Testing Qualifications Board",
@@ -31,12 +34,21 @@ export default function CertificationsTimeline() {
     },
   ];
 
+  const mappedContextCerts = certifications.map((c) => ({
+    title: c.title,
+    issuer: c.issuer,
+    date: `Issued ${c.date}`,
+    badge: c.badge || "Certified",
+  }));
+
+  const displayCerts = mappedContextCerts.length > 0 ? mappedContextCerts : defaultCerts;
+
   const experiences = [
     {
-      role: "SQA & Test Automation Architect",
+      role: "SQA & Test Automation Lead",
       company: "TechCorp Global",
       period: "2023 - Present",
-      location: "San Francisco, CA (Remote)",
+      location: "Remote",
       achievements: [
         "Architected enterprise-wide Playwright + TypeScript E2E test suite covering 14 micro-frontends.",
         "Reduced regression run duration from 96 hours manual effort down to 18 minutes parallel CI execution.",
@@ -44,24 +56,14 @@ export default function CertificationsTimeline() {
       ],
     },
     {
-      role: "Software QA Engineer",
+      role: "Software Quality Assurance Engineer",
       company: "DataScale Cloud Systems",
       period: "2021 - 2023",
-      location: "Austin, TX",
+      location: "Dhaka, Bangladesh",
       achievements: [
         "Built automated Postman Newman API security sweep integrated into GitHub Actions PR quality gates.",
         "Executed k6 load profiling simulating 5,000 virtual users during major product feature rollouts.",
         "Maintained 0.00% flaky test spec rate across 1,000+ daily Cypress test executions.",
-      ],
-    },
-    {
-      role: "SQA Automation Specialist",
-      company: "FinTech Solutions Inc.",
-      period: "2019 - 2021",
-      location: "New York, NY",
-      achievements: [
-        "Automated mobile banking application UI flows using Appium, Java, and TestNG.",
-        "Uncovered 50+ critical edge-case bugs in payment gateway integration before public launch.",
       ],
     },
   ];
@@ -69,13 +71,13 @@ export default function CertificationsTimeline() {
   const testimonials = [
     {
       quote:
-        "Alex revolutionized our software release strategy. Before Alex joined, every release was stressful with unexpected bugs. Now our releases are automated, reliable, and completely stress-free.",
+        `${profile.name || "Abdullah"} revolutionized our software release strategy. Before joining, every release was stressful with unexpected bugs. Now our releases are automated, reliable, and completely stress-free.`,
       author: "Marcus Vance",
       title: "VP of Engineering at TechCorp Global",
     },
     {
       quote:
-        "Alex writes test automation code cleaner than most senior developers write application code! The Playwright framework designed by Alex is the golden standard across our entire organization.",
+        `${profile.name || "Abdullah"} writes test automation code cleaner than most senior developers write application code! The Playwright framework designed by him is the golden standard across our entire organization.`,
       author: "Sarah Jenkins",
       title: "Chief Technology Officer at DataScale",
     },
@@ -96,7 +98,7 @@ export default function CertificationsTimeline() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
-          {certs.map((c, i) => (
+          {displayCerts.map((c, i) => (
             <div
               key={i}
               className="glass-card rounded-2xl p-6 border-slate-800 hover:border-amber-500/40 transition-all bg-[#0c1222] space-y-3 shadow-xl"

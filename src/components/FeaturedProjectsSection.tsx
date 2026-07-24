@@ -7,8 +7,11 @@ import {
   Terminal, 
   Loader2
 } from "lucide-react";
+import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function FeaturedProjectsSection() {
+  const { projects } = usePortfolioData();
+
   const [activeTest, setActiveTest] = useState<string>("api-suite");
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [testLogs, setTestLogs] = useState<string[]>([]);
@@ -80,30 +83,6 @@ export default function FeaturedProjectsSection() {
     }, 400);
   };
 
-  const projects = [
-    {
-      title: "FinTech Banking API Test Framework",
-      desc: "Comprehensive automated API regression suite in Postman & REST Assured validating 150+ financial microservice endpoints.",
-      tags: ["Postman", "REST Assured", "Java", "Docker"],
-      stats: "150+ API Endpoints",
-      link: "https://github.com",
-    },
-    {
-      title: "Global E-Commerce Playwright E2E Suite",
-      desc: "Cross-browser end-to-end automation framework executing parallel tests across Chromium, Firefox, and WebKit on GitHub Actions.",
-      tags: ["Playwright", "TypeScript", "CI/CD", "Allure"],
-      stats: "500+ Parallel Tests",
-      link: "https://github.com",
-    },
-    {
-      title: "Healthcare App Load & JMeter Benchmark",
-      desc: "Distributed performance engineering simulating 20,000 concurrent patient portal sessions with real-time Grafana telemetry.",
-      tags: ["JMeter", "K6", "Grafana", "InfluxDB"],
-      stats: "20k VU Simulated",
-      link: "https://github.com",
-    },
-  ];
-
   return (
     <section id="projects" className="scroll-mt-12 space-y-8 pt-6">
       {/* Tag */}
@@ -124,15 +103,15 @@ export default function FeaturedProjectsSection() {
 
       {/* Projects Showcase Stream */}
       <div className="space-y-4">
-        {projects.map((proj, idx) => (
+        {projects.map((proj) => (
           <div
-            key={idx}
+            key={proj.id}
             className="p-6 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#222222] hover:border-sky-500/40 dark:hover:border-[#38bdf8]/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group shadow-sm dark:shadow-none"
           >
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-3">
                 <span className="text-[11px] font-mono text-sky-600 dark:text-[#38bdf8] bg-sky-50 dark:bg-[#38bdf8]/10 px-2.5 py-0.5 rounded border border-sky-200 dark:border-[#38bdf8]/20">
-                  {proj.stats}
+                  {proj.metrics || proj.category}
                 </span>
               </div>
 
@@ -141,7 +120,7 @@ export default function FeaturedProjectsSection() {
               </h3>
 
               <p className="text-sm text-slate-600 dark:text-[#999999] leading-relaxed">
-                {proj.desc}
+                {proj.description}
               </p>
 
               <div className="flex flex-wrap gap-1.5 pt-2">
@@ -158,7 +137,7 @@ export default function FeaturedProjectsSection() {
 
             <div className="shrink-0 pt-2 md:pt-0">
               <a
-                href={proj.link}
+                href={proj.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-[#1e1e1e] hover:bg-sky-500 dark:hover:bg-[#38bdf8] text-slate-900 dark:text-white hover:text-white dark:hover:text-black font-mono font-bold text-xs border border-slate-200 dark:border-[#2a2a2a] transition-all"

@@ -3,8 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import { Mail, MapPin } from "lucide-react";
+import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function FixedLeftSidebar() {
+  const { profile } = usePortfolioData();
+
   const scrollToContact = (e: React.MouseEvent) => {
     e.preventDefault();
     const contactSection = document.getElementById("contact");
@@ -13,27 +16,29 @@ export default function FixedLeftSidebar() {
     }
   };
 
+  const nameFirstName = profile.name.split(" ")[0] || "Abdullah";
+
   return (
     <aside className="w-full">
-      <div className="bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2a2a2a] rounded-[32px] p-6 lg:p-7 shadow-xl dark:shadow-2xl flex flex-col justify-between transition-colors duration-300">
+      <div className="bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2a2a2a] rounded-[32px] p-5 lg:p-6 xl:p-7 shadow-xl dark:shadow-2xl flex flex-col justify-between transition-colors duration-300">
         
         {/* Header Branding Row */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 xl:mb-5">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
-              Abdullah<span className="text-sky-500 dark:text-[#38bdf8]">.</span>
+            <span className="text-xl xl:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
+              {nameFirstName}<span className="text-sky-500 dark:text-[#38bdf8]">.</span>
             </span>
           </div>
-          <span className="text-[11px] font-mono font-medium px-2.5 py-1 rounded-full bg-sky-50 dark:bg-[#38bdf8]/10 text-sky-600 dark:text-[#38bdf8] border border-sky-200 dark:border-[#38bdf8]/20">
+          <span className="text-[10px] xl:text-[11px] font-mono font-medium px-2.5 py-1 rounded-full bg-sky-50 dark:bg-[#38bdf8]/10 text-sky-600 dark:text-[#38bdf8] border border-sky-200 dark:border-[#38bdf8]/20">
             SQA ENGINEER
           </span>
         </div>
 
         {/* Profile Avatar Frame */}
-        <div className="relative w-full aspect-square max-w-[280px] mx-auto mb-6 rounded-2xl overflow-hidden border border-slate-200 dark:border-[#333333] group bg-slate-100 dark:bg-[#161616]">
+        <div className="relative w-full aspect-square max-w-[220px] lg:max-w-[240px] xl:max-w-[260px] mx-auto mb-4 xl:mb-5 rounded-2xl overflow-hidden border border-slate-200 dark:border-[#333333] group bg-slate-100 dark:bg-[#161616]">
           <Image
             src="/abdullah-profile.png"
-            alt="Abdullah Al Omar - SQA Engineer"
+            alt={profile.name}
             fill
             className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
             priority
@@ -42,28 +47,27 @@ export default function FixedLeftSidebar() {
         </div>
 
         {/* Info & Details */}
-        <div className="text-center space-y-2 mb-6">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Abdullah Al Omar
+        <div className="text-center space-y-1.5 mb-4 xl:mb-5">
+          <h2 className="text-xl xl:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            {profile.name}
           </h2>
-          <p className="text-sm text-slate-600 dark:text-[#999999] font-medium leading-snug">
-            Software Quality Assurance Engineer & Test Automation Specialist
+          <p className="text-xs xl:text-sm text-slate-600 dark:text-[#999999] font-medium leading-snug">
+            {profile.title}
           </p>
           
-          <div className="pt-2 flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-[#888888]">
+          <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] xl:text-xs text-slate-500 dark:text-[#888888]">
             <MapPin className="w-3.5 h-3.5 text-sky-500 dark:text-[#38bdf8]" />
-            <span>Dhaka, Bangladesh &bull; Available Remote</span>
+            <span>{profile.location}</span>
           </div>
         </div>
 
-
         {/* Social Links Bar */}
-        <div className="flex items-center justify-center gap-3 mb-6">
+        <div className="flex items-center justify-center gap-2.5 xl:gap-3 mb-4 xl:mb-5">
           <a
-            href="https://github.com"
+            href={profile.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
+            className="w-9 h-9 xl:w-10 xl:h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
             aria-label="GitHub Profile"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -71,10 +75,10 @@ export default function FixedLeftSidebar() {
             </svg>
           </a>
           <a
-            href="https://linkedin.com"
+            href={profile.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
+            className="w-9 h-9 xl:w-10 xl:h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
             aria-label="LinkedIn Profile"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -82,10 +86,10 @@ export default function FixedLeftSidebar() {
             </svg>
           </a>
           <a
-            href="https://twitter.com"
+            href={profile.twitter}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
+            className="w-9 h-9 xl:w-10 xl:h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
             aria-label="Twitter Profile"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -93,8 +97,8 @@ export default function FixedLeftSidebar() {
             </svg>
           </a>
           <a
-            href="mailto:abdullah.sqa@gmail.com"
-            className="w-10 h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
+            href={`mailto:${profile.email}`}
+            className="w-9 h-9 xl:w-10 xl:h-10 rounded-full border border-slate-200 dark:border-[#2a2a2a] bg-slate-100 dark:bg-[#161616] flex items-center justify-center text-slate-600 dark:text-[#aaaaaa] hover:text-sky-500 dark:hover:text-[#38bdf8] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 hover:scale-110 transition-all"
             aria-label="Send Email"
           >
             <Mail className="w-4 h-4" />
@@ -104,15 +108,15 @@ export default function FixedLeftSidebar() {
         {/* HIRE ME Button */}
         <button
           onClick={scrollToContact}
-          className="w-full py-3.5 px-6 rounded-full bg-sky-500 dark:bg-[#38bdf8] hover:bg-sky-600 dark:hover:bg-[#0ea5e9] text-white dark:text-[#111111] font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(56,189,248,0.3)] hover:shadow-[0_0_35px_rgba(56,189,248,0.5)] active:scale-98 transition-all"
+          className="w-full py-3 xl:py-3.5 px-6 rounded-full bg-sky-500 dark:bg-[#38bdf8] hover:bg-sky-600 dark:hover:bg-[#0ea5e9] text-white dark:text-[#111111] font-bold text-xs xl:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(56,189,248,0.3)] hover:shadow-[0_0_35px_rgba(56,189,248,0.5)] active:scale-98 transition-all"
         >
           <Mail className="w-4 h-4" />
           <span>HIRE ME!</span>
         </button>
 
         {/* Copyright notice */}
-        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-[#2a2a2a]/60 text-center text-[11px] text-slate-400 dark:text-[#666666]">
-          &copy; {new Date().getFullYear()} Abdullah Al Omar. All rights reserved.
+        <div className="mt-4 pt-3 xl:mt-5 xl:pt-4 border-t border-slate-200 dark:border-[#2a2a2a]/60 text-center text-[10px] xl:text-[11px] text-slate-400 dark:text-[#666666]">
+          &copy; {new Date().getFullYear()} {profile.name}. All rights reserved.
         </div>
       </div>
     </aside>

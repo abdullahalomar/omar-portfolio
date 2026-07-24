@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PortfolioProvider } from "@/context/PortfolioContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -56,7 +57,9 @@ export default function RootLayout({
     >
       <body className="bg-slate-50 dark:bg-[#111111] text-slate-900 dark:text-white antialiased selection:bg-[#38bdf8] selection:text-black min-h-screen transition-colors duration-300">
         <ThemeProvider>
-          {children}
+          <PortfolioProvider>
+            {children}
+          </PortfolioProvider>
         </ThemeProvider>
       </body>
     </html>

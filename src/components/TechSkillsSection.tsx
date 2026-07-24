@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import { Zap, CheckCircle2, Layers } from "lucide-react";
+import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function TechSkillsSection() {
+  const { skills: contextSkills } = usePortfolioData();
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
   const categories = ["All", "Automation", "API & Load", "DevOps & DB"];
 
-  const skills = [
+  const defaultSkills = [
     { name: "Playwright", level: "EXPERT", category: "Automation", icon: "🎭", desc: "POM Frameworks, Parallel Execution & WebKit" },
     { name: "Postman & REST", level: "EXPERT", category: "API & Load", icon: "🚀", desc: "API Suites, Newman CLI & Contract Tests" },
     { name: "Python & TypeScript", level: "EXPERT", category: "Automation", icon: "🐍", desc: "Type-Safe Automation & Scripting" },
@@ -19,9 +21,20 @@ export default function TechSkillsSection() {
     { name: "SQL & DB Testing", level: "EXPERT", category: "DevOps & DB", icon: "🗄️", desc: "Data Integrity & Complex Queries" },
   ];
 
+  // Map context skills into skill items if added
+  const mappedContextSkills = contextSkills.map((s) => ({
+    name: s.name,
+    level: s.percentage >= 90 ? "EXPERT" : "PRO",
+    category: s.category || "Automation",
+    icon: "⚡",
+    desc: `Proficiency level: ${s.percentage}%`,
+  }));
+
+  const allSkills = [...mappedContextSkills, ...defaultSkills];
+
   const filteredSkills = activeCategory === "All" 
-    ? skills 
-    : skills.filter(s => s.category === activeCategory);
+    ? allSkills 
+    : allSkills.filter(s => s.category === activeCategory);
 
   const tagCloud = [
     "Playwright", "Selenium Grid", "Cypress", "Postman", "REST Assured",

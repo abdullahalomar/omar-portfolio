@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import { Mail, Send, MapPin, CheckCircle2, Phone, Copy, Check } from "lucide-react";
+import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function ContactFormSection() {
+  const { profile, addContactMessage } = usePortfolioData();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
-    budget: "$1k - $5k",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -17,15 +19,23 @@ export default function ContactFormSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
+
+    addContactMessage({
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject || "Portfolio Inquiry",
+      message: formData.message,
+    });
+
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
-      setFormData({ name: "", email: "", subject: "", budget: "$1k - $5k", message: "" });
+      setFormData({ name: "", email: "", subject: "", message: "" });
     }, 4000);
   };
 
   const copyEmail = () => {
-    navigator.clipboard.writeText("abdullah.sqa@gmail.com");
+    navigator.clipboard.writeText(profile.email || "abdullah.sqa@gmail.com");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -120,7 +130,7 @@ export default function ContactFormSection() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Sarah Connor"
+                      placeholder="Name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] text-slate-900 dark:text-white text-sm focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
@@ -132,7 +142,7 @@ export default function ContactFormSection() {
                     <input
                       type="email"
                       required
-                      placeholder="sarah@company.com"
+                      placeholder="Email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] text-slate-900 dark:text-white text-sm focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
@@ -140,30 +150,15 @@ export default function ContactFormSection() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs text-slate-600 dark:text-[#aaaaaa] font-medium">Subject</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Test Automation Setup"
-                      value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] text-slate-900 dark:text-white text-sm focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs text-slate-600 dark:text-[#aaaaaa] font-medium">Estimated Budget</label>
-                    <select
-                      value={formData.budget}
-                      onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] text-slate-900 dark:text-white text-sm focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
-                    >
-                      <option value="<$1k">&lt; $1,000</option>
-                      <option value="$1k - $5k">$1,000 - $5,000</option>
-                      <option value="$5k+">$5,000+</option>
-                    </select>
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-slate-600 dark:text-[#aaaaaa] font-medium">Subject</label>
+                  <input
+                    type="text"
+                    placeholder="Subject"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] text-slate-900 dark:text-white text-sm focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
+                  />
                 </div>
 
                 <div className="space-y-1.5">
@@ -171,7 +166,7 @@ export default function ContactFormSection() {
                   <textarea
                     required
                     rows={4}
-                    placeholder="Tell me about your product, tech stack, and QA requirements..."
+                    placeholder="Message"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a] text-slate-900 dark:text-white text-sm focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
