@@ -5,9 +5,7 @@ import Link from "next/link";
 import { 
   usePortfolioData, 
   Project, 
-  BlogPost, 
-  Skill, 
-  Certification 
+  BlogPost 
 } from "@/context/PortfolioContext";
 import { 
   LayoutDashboard, 
@@ -30,7 +28,7 @@ import {
   Mail, 
   Eye, 
   EyeOff,
-  Sparkles,
+  Cloud,
   ArrowRight
 } from "lucide-react";
 
@@ -326,7 +324,12 @@ export default function AdminPage() {
               </div>
               <div>
                 <h2 className="text-sm font-bold tracking-tight">Admin Console</h2>
-                <p className="text-[10px] text-sky-400 font-mono">PORTFOLIO CMS</p>
+                <div className="flex items-center gap-1.5 text-[10px]">
+                  <Cloud className={`w-3 h-3 ${isCloudConnected ? "text-emerald-400" : "text-sky-400"}`} />
+                  <span className={isCloudConnected ? "text-emerald-400 font-bold" : "text-sky-400 font-mono"}>
+                    {isCloudConnected ? "Supabase Cloud" : "LocalStorage"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
