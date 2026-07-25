@@ -7,6 +7,7 @@ import {
   Project, 
   BlogPost 
 } from "@/context/PortfolioContext";
+import CloudinaryImageUploader from "@/components/CloudinaryImageUploader";
 import { 
   LayoutDashboard, 
   User, 
@@ -29,7 +30,8 @@ import {
   Eye, 
   EyeOff,
   Cloud,
-  ArrowRight
+  ArrowRight,
+  Upload
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -94,15 +96,38 @@ export default function AdminPage() {
     category: "",
     readTime: "5 min read",
     tags: "",
+    thumbnail: "",
     intro: "",
     section1Heading: "",
     section1Body: "",
-    section1Code: "",
     conclusion: "",
   });
 
-  const [newSkillForm, setNewSkillForm] = useState({ name: "", category: "Automation", percentage: 90 });
+  const [newSkillForm, setNewSkillForm] = useState({ name: "", category: "Automation", percentage: 90, icon: "" });
   const [newCertForm, setNewCertForm] = useState({ title: "", issuer: "", date: "2024", badge: "Certified" });
+
+  const [cloudNameInput, setCloudNameInput] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("cloudinary_cloud_name") || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "demo";
+    }
+    return "demo";
+  });
+
+  const [uploadPresetInput, setUploadPresetInput] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("cloudinary_upload_preset") || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "unsigned_preset";
+    }
+    return "unsigned_preset";
+  });
+
+  const handleSaveCloudinarySettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cloudinary_cloud_name", cloudNameInput.trim());
+      localStorage.setItem("cloudinary_upload_preset", uploadPresetInput.trim());
+      triggerSaveNotification();
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,6 +203,7 @@ export default function AdminPage() {
       category: "Automation Testing",
       readTime: "5 min read",
       tags: "Playwright, TypeScript, SQA",
+      thumbnail: "",
       intro: "",
       section1Heading: "1. Core Framework Setup",
       section1Body: "",
@@ -195,6 +221,7 @@ export default function AdminPage() {
       category: b.category,
       readTime: b.readTime,
       tags: b.tags.join(", "),
+      thumbnail: b.thumbnail || "",
       intro: b.content.intro,
       section1Heading: b.content.sections[0]?.heading || "1. Overview",
       section1Body: b.content.sections[0]?.body || "",
@@ -218,6 +245,7 @@ export default function AdminPage() {
       author: profile.name,
       authorRole: "SQA Lead",
       tags: tagArray,
+      thumbnail: blogForm.thumbnail,
       content: {
         intro: blogForm.intro,
         sections: [
@@ -245,7 +273,7 @@ export default function AdminPage() {
     e.preventDefault();
     if (!newSkillForm.name) return;
     addSkill(newSkillForm);
-    setNewSkillForm({ name: "", category: "Automation", percentage: 90 });
+    setNewSkillForm({ name: "", category: "Automation", percentage: 90, icon: "" });
     triggerSaveNotification();
   };
 
@@ -605,6 +633,15 @@ export default function AdminPage() {
                       className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500"
                     />
                   </div>
+
+                  <div className="pt-2">
+                    <CloudinaryImageUploader
+                      label="Hero Profile Image (Cloudinary)"
+                      value={profile.profileImage || ""}
+                      onChange={(url) => updateProfile({ profileImage: url })}
+                      aspectRatio="square"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -828,57 +865,80 @@ export default function AdminPage() {
             </div>
 
             {/* Add Skill Form */}
-            <form onSubmit={handleAddSkill} className="p-6 rounded-3xl bg-[#111827] border border-slate-800 flex flex-wrap gap-4 items-end">
-              <div className="flex-1 min-w-[200px]">
-                <label className="text-xs text-slate-400">Tool / Skill Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Cypress & JavaScript"
-                  value={newSkillForm.name}
-                  onChange={(e) => setNewSkillForm({ ...newSkillForm, name: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500"
-                />
-              </div>
+            <div className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-4">
+              <h3 className="text-base font-bold text-sky-400">Add New Tech Skill</h3>
+              <form onSubmit={handleAddSkill} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs text-slate-400">Tool / Skill Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Cypress & JavaScript"
+                      value={newSkillForm.name}
+                      onChange={(e) => setNewSkillForm({ ...newSkillForm, name: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500"
+                    />
+                  </div>
 
-              <div className="w-44">
-                <label className="text-xs text-slate-400">Category</label>
-                <input
-                  type="text"
-                  value={newSkillForm.category}
-                  onChange={(e) => setNewSkillForm({ ...newSkillForm, category: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500"
-                />
-              </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Category</label>
+                    <input
+                      type="text"
+                      value={newSkillForm.category}
+                      onChange={(e) => setNewSkillForm({ ...newSkillForm, category: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500"
+                    />
+                  </div>
 
-              <div className="w-32">
-                <label className="text-xs text-slate-400">Proficiency %</label>
-                <input
-                  type="number"
-                  min={10}
-                  max={100}
-                  value={newSkillForm.percentage}
-                  onChange={(e) => setNewSkillForm({ ...newSkillForm, percentage: parseInt(e.target.value) || 90 })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500 font-mono"
-                />
-              </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Proficiency %</label>
+                    <input
+                      type="number"
+                      min={10}
+                      max={100}
+                      value={newSkillForm.percentage}
+                      onChange={(e) => setNewSkillForm({ ...newSkillForm, percentage: parseInt(e.target.value) || 90 })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 focus:outline-none focus:border-sky-500 font-mono"
+                    />
+                  </div>
+                </div>
 
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded-xl bg-sky-500 text-black font-bold text-xs hover:bg-sky-400 transition-colors flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Skill</span>
-              </button>
-            </form>
+                <div>
+                  <CloudinaryImageUploader
+                    label="Skill Icon / Logo (Cloudinary Image or Emoji)"
+                    value={newSkillForm.icon}
+                    onChange={(url) => setNewSkillForm({ ...newSkillForm, icon: url })}
+                    placeholder="https://res.cloudinary.com/... or 🚀"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-sky-500 text-black font-bold text-xs hover:bg-sky-400 transition-colors flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Skill</span>
+                </button>
+              </form>
+            </div>
 
             {/* List Skills */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {skills.map((s) => (
                 <div key={s.id} className="p-4 rounded-2xl bg-[#111827] border border-slate-800 flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-xs font-bold text-white">{s.name}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{s.category} • {s.percentage}%</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#0f172a] border border-slate-700 flex items-center justify-center text-xl shrink-0 overflow-hidden p-1">
+                      {s.icon && (s.icon.startsWith("http") || s.icon.startsWith("/") || s.icon.startsWith("data:")) ? (
+                        <img src={s.icon} alt={s.name} className="w-7 h-7 object-contain rounded-md" />
+                      ) : (
+                        <span>{s.icon || "⚡"}</span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white">{s.name}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">{s.category} • {s.percentage}%</div>
+                    </div>
                   </div>
 
                   <button
@@ -1031,7 +1091,50 @@ export default function AdminPage() {
           <div className="space-y-8 max-w-xl">
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">System Settings</h1>
-              <p className="text-xs text-slate-400">Reset default content or manage passcode settings.</p>
+              <p className="text-xs text-slate-400">Manage Cloudinary credentials, image hosting, and data reset.</p>
+            </div>
+
+            {/* Cloudinary Credentials Panel */}
+            <div className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-4">
+              <h3 className="text-sm font-bold text-sky-400 flex items-center gap-2">
+                <Cloud className="w-4 h-4 text-sky-400" />
+                <span>Cloudinary Hosting Configuration</span>
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Configure your Cloudinary Cloud Name and Unsigned Upload Preset to host hero images, blog thumbnails, and skill logos.
+              </p>
+
+              <form onSubmit={handleSaveCloudinarySettings} className="space-y-4 pt-1">
+                <div>
+                  <label className="text-xs text-slate-400">Cloud Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={cloudNameInput}
+                    onChange={(e) => setCloudNameInput(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 font-mono focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-400">Upload Preset (Unsigned)</label>
+                  <input
+                    type="text"
+                    required
+                    value={uploadPresetInput}
+                    onChange={(e) => setUploadPresetInput(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 font-mono focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-full bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs flex items-center gap-2 transition-all shadow-md"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save Credentials</span>
+                </button>
+              </form>
             </div>
 
             <div className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-4">
@@ -1157,6 +1260,15 @@ export default function AdminPage() {
                   value={blogForm.title}
                   onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })}
                   className="w-full px-4 py-2 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div className="pt-1">
+                <CloudinaryImageUploader
+                  label="Blog Thumbnail Image (Cloudinary)"
+                  value={blogForm.thumbnail}
+                  onChange={(url) => setBlogForm({ ...blogForm, thumbnail: url })}
+                  aspectRatio="video"
                 />
               </div>
 

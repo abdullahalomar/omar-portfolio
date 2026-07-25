@@ -59,43 +59,57 @@ export default function BlogSection() {
           <article
             key={post.id}
             onClick={() => openBlog(post)}
-            className="group cursor-pointer p-6 rounded-3xl bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2a2a2a] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 transition-all duration-300 shadow-md hover:shadow-xl dark:shadow-none flex flex-col justify-between"
+            className="group cursor-pointer rounded-3xl bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2a2a2a] hover:border-sky-500/50 dark:hover:border-[#38bdf8]/50 transition-all duration-300 shadow-md hover:shadow-xl dark:shadow-none flex flex-col justify-between overflow-hidden"
           >
-            <div className="space-y-4">
-              {/* Category & Date */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="px-3 py-1 rounded-full bg-sky-50 dark:bg-[#38bdf8]/10 text-sky-600 dark:text-[#38bdf8] font-mono font-medium border border-sky-200 dark:border-[#38bdf8]/20">
-                  {post.category}
-                </span>
-                <span className="text-slate-400 dark:text-[#888888] flex items-center gap-1 text-[11px]">
-                  <Clock className="w-3 h-3 text-sky-500 dark:text-[#38bdf8]" />
-                  {post.readTime}
-                </span>
+            {/* Optional Cloudinary / Custom Thumbnail Header */}
+            {post.thumbnail && (
+              <div className="relative w-full h-44 overflow-hidden bg-slate-100 dark:bg-[#161616]">
+                <img
+                  src={post.thumbnail}
+                  alt={post.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-40" />
+              </div>
+            )}
+
+            <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-4">
+                {/* Category & Date */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="px-3 py-1 rounded-full bg-sky-50 dark:bg-[#38bdf8]/10 text-sky-600 dark:text-[#38bdf8] font-mono font-medium border border-sky-200 dark:border-[#38bdf8]/20">
+                    {post.category}
+                  </span>
+                  <span className="text-slate-400 dark:text-[#888888] flex items-center gap-1 text-[11px]">
+                    <Clock className="w-3 h-3 text-sky-500 dark:text-[#38bdf8]" />
+                    {post.readTime}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-[#38bdf8] transition-colors leading-snug">
+                  {post.title}
+                </h3>
+
+                {/* Excerpt */}
+                <p className="text-xs text-slate-600 dark:text-[#999999] line-clamp-3 leading-relaxed">
+                  {post.excerpt}
+                </p>
               </div>
 
-              {/* Title */}
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-[#38bdf8] transition-colors leading-snug">
-                {post.title}
-              </h3>
-
-              {/* Excerpt */}
-              <p className="text-xs text-slate-600 dark:text-[#999999] line-clamp-3 leading-relaxed">
-                {post.excerpt}
-              </p>
-            </div>
-
-            {/* Footer / CTA */}
-            <div className="pt-6 mt-4 border-t border-slate-100 dark:border-[#2a2a2a] flex items-center justify-between">
-              <span className="text-[11px] text-slate-400 dark:text-[#777777] font-mono">
-                {post.date}
-              </span>
-              <button
-                className="text-xs font-semibold text-sky-500 dark:text-[#38bdf8] flex items-center gap-1 group-hover:translate-x-1 transition-transform"
-                aria-label={`Read ${post.title}`}
-              >
-                <span>Read Full</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              {/* Footer / CTA */}
+              <div className="pt-4 mt-2 border-t border-slate-100 dark:border-[#2a2a2a] flex items-center justify-between">
+                <span className="text-[11px] text-slate-400 dark:text-[#777777] font-mono">
+                  {post.date}
+                </span>
+                <button
+                  className="text-xs font-semibold text-sky-500 dark:text-[#38bdf8] flex items-center gap-1 group-hover:translate-x-1 transition-transform"
+                  aria-label={`Read ${post.title}`}
+                >
+                  <span>Read Full</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </article>
         ))}
@@ -161,6 +175,17 @@ export default function BlogSection() {
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
               {selectedBlog.title}
             </h1>
+
+            {/* Optional Cloudinary Hero Thumbnail inside modal */}
+            {selectedBlog.thumbnail && (
+              <div className="w-full h-56 sm:h-72 rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#161616] border border-slate-200 dark:border-[#2a2a2a]">
+                <img
+                  src={selectedBlog.thumbnail}
+                  alt={selectedBlog.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
 
             {/* Article Body */}
             <div className="space-y-6 text-sm text-slate-700 dark:text-[#cccccc] leading-relaxed border-t border-slate-100 dark:border-[#2a2a2a] pt-6">

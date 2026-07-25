@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS profile (
   linkedin TEXT NOT NULL,
   twitter TEXT NOT NULL,
   availability TEXT NOT NULL,
+  profile_image TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -54,6 +55,7 @@ CREATE TABLE IF NOT EXISTS blogs (
   author_role TEXT,
   tags TEXT[],
   content JSONB NOT NULL,
+  thumbnail TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -63,8 +65,10 @@ CREATE TABLE IF NOT EXISTS skills (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   percentage INT NOT NULL,
+  icon TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- 6. Certifications Table
 CREATE TABLE IF NOT EXISTS certifications (

@@ -13,6 +13,7 @@ export interface ProfileData {
   linkedin: string;
   twitter: string;
   availability: string;
+  profileImage?: string;
 }
 
 export interface HeroData {
@@ -47,6 +48,7 @@ export interface BlogPost {
   author: string;
   authorRole: string;
   tags: string[];
+  thumbnail?: string;
   content: {
     intro: string;
     sections: {
@@ -63,6 +65,7 @@ export interface Skill {
   name: string;
   category: string;
   percentage: number;
+  icon?: string;
 }
 
 export interface Certification {
@@ -128,6 +131,7 @@ const defaultProfile: ProfileData = {
   linkedin: "https://linkedin.com",
   twitter: "https://twitter.com",
   availability: "Open for Freelance & Contract",
+  profileImage: "/abdullah-profile.png",
 };
 
 const defaultHero: HeroData = {
@@ -187,6 +191,7 @@ const defaultBlogs: BlogPost[] = [
     author: "Abdullah Al Omar",
     authorRole: "SQA Lead & Test Specialist",
     tags: ["Playwright", "TypeScript", "POM", "CI/CD"],
+    thumbnail: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop&q=80",
     content: {
       intro: "End-to-End (E2E) testing often becomes flakiness-prone if the framework architecture is not designed for scale. Playwright has revolutionized web automation with native auto-waiting, browser context isolation, and powerful API request interception.",
       sections: [
@@ -213,6 +218,7 @@ const defaultBlogs: BlogPost[] = [
     author: "Abdullah Al Omar",
     authorRole: "SQA Lead & Test Specialist",
     tags: ["Postman", "Newman", "GitHub Actions", "REST API"],
+    thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
     content: {
       intro: "Waiting for staging deployments before discovering API breaking changes increases bug fix costs by up to 10x. Shift-Left API testing automates collection runs on every pull request.",
       sections: [
@@ -228,12 +234,12 @@ const defaultBlogs: BlogPost[] = [
 ];
 
 const defaultSkills: Skill[] = [
-  { id: "s-1", name: "Playwright & TypeScript", category: "Automation", percentage: 95 },
-  { id: "s-2", name: "Selenium WebDriver & Java", category: "Automation", percentage: 90 },
-  { id: "s-3", name: "Postman & Newman CLI", category: "API & Load", percentage: 98 },
-  { id: "s-4", name: "REST Assured & PyTest", category: "API & Load", percentage: 88 },
-  { id: "s-5", name: "Apache JMeter & K6", category: "API & Load", percentage: 85 },
-  { id: "s-6", name: "GitHub Actions & Docker", category: "DevOps & DB", percentage: 92 },
+  { id: "s-1", name: "Playwright & TypeScript", category: "Automation", percentage: 95, icon: "🎭" },
+  { id: "s-2", name: "Selenium WebDriver & Java", category: "Automation", percentage: 90, icon: "🌐" },
+  { id: "s-3", name: "Postman & Newman CLI", category: "API & Load", percentage: 98, icon: "🚀" },
+  { id: "s-4", name: "REST Assured & PyTest", category: "API & Load", percentage: 88, icon: "🐍" },
+  { id: "s-5", name: "Apache JMeter & K6", category: "API & Load", percentage: 85, icon: "⚡" },
+  { id: "s-6", name: "GitHub Actions & Docker", category: "DevOps & DB", percentage: 92, icon: "🐳" },
 ];
 
 const defaultCertifications: Certification[] = [
@@ -289,7 +295,20 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
             supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
           ]);
 
-          if (profData) setProfile(profData);
+          if (profData) {
+            setProfile({
+              name: profData.name,
+              title: profData.title,
+              bio: profData.bio,
+              location: profData.location,
+              email: profData.email,
+              github: profData.github,
+              linkedin: profData.linkedin,
+              twitter: profData.twitter,
+              availability: profData.availability,
+              profileImage: profData.profile_image || profData.profileImage || "/abdullah-profile.png",
+            });
+          }
           if (heroData) {
             setHero({
               headline1: heroData.headline1,
@@ -328,11 +347,22 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
                 author: b.author,
                 authorRole: b.author_role || "",
                 tags: b.tags || [],
+                thumbnail: b.thumbnail || "",
                 content: b.content,
               }))
             );
           }
-          if (skillData && skillData.length > 0) setSkills(skillData);
+          if (skillData && skillData.length > 0) {
+            setSkills(
+              skillData.map((s) => ({
+                id: s.id,
+                name: s.name,
+                category: s.category,
+                percentage: s.percentage,
+                icon: s.icon || "",
+              }))
+            );
+          }
           if (certData && certData.length > 0) setCertifications(certData);
           if (msgData && msgData.length > 0) setMessages(msgData);
         } catch (err) {
@@ -387,7 +417,19 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setProfile(updated);
 
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("profile").upsert({ id: 1, ...updated });
+      await supabase.from("profile").upsert({
+        id: 1,
+        name: updated.name,
+        title: updated.title,
+        bio: updated.bio,
+        location: updated.location,
+        email: updated.email,
+        github: updated.github,
+        linkedin: updated.linkedin,
+        twitter: updated.twitter,
+        availability: updated.availability,
+        profile_image: updated.profileImage,
+      });
     }
   };
 
@@ -472,6 +514,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         author_role: newB.authorRole,
         tags: newB.tags,
         content: newB.content,
+        thumbnail: newB.thumbnail,
       });
     }
   };
@@ -493,6 +536,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           author_role: merged.authorRole,
           tags: merged.tags,
           content: merged.content,
+          thumbnail: merged.thumbnail,
         }).eq("id", id);
       }
     }
@@ -510,7 +554,13 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setSkills((prev) => [...prev, newS]);
 
     if (isSupabaseConfigured && supabase) {
-      await supabase.from("skills").insert(newS);
+      await supabase.from("skills").insert({
+        id: newS.id,
+        name: newS.name,
+        category: newS.category,
+        percentage: newS.percentage,
+        icon: newS.icon,
+      });
     }
   };
 

@@ -3,8 +3,12 @@
 import React from "react";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
+import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function HeroSection() {
+  const { profile } = usePortfolioData();
+  const avatarSrc = profile.profileImage || "/images/omar-portrait.png";
+
   return (
     <section id="hero" className="w-full px-4 sm:px-8 max-w-6xl mx-auto pt-2 pb-8">
       {/* Off-white Hero Card matching the reference image layout */}
@@ -14,11 +18,12 @@ export default function HeroSection() {
         <div className="relative mb-8 flex justify-center">
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-white shadow-md bg-slate-200">
             <Image
-              src="/images/omar-portrait.png"
-              alt="Abdullah - SQA Engineer"
+              src={avatarSrc}
+              alt={`${profile.name} - SQA Engineer`}
               fill
               className="object-cover object-center"
               priority
+              unoptimized={Boolean(avatarSrc.startsWith("http"))}
             />
           </div>
 

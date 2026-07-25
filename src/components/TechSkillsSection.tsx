@@ -26,7 +26,7 @@ export default function TechSkillsSection() {
     name: s.name,
     level: s.percentage >= 90 ? "EXPERT" : "PRO",
     category: s.category || "Automation",
-    icon: "⚡",
+    icon: s.icon || "⚡",
     desc: `Proficiency level: ${s.percentage}%`,
   }));
 
@@ -85,8 +85,12 @@ export default function TechSkillsSection() {
             key={idx}
             className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#222222] hover:border-sky-500/40 dark:hover:border-[#38bdf8]/40 hover:bg-slate-50 dark:hover:bg-[#181818] transition-all duration-300 group flex items-start gap-4 shadow-sm dark:shadow-none"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-[#1c1c1c] border border-slate-200 dark:border-[#2a2a2a] flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 group-hover:border-sky-500/40 dark:group-hover:border-[#38bdf8]/40 transition-all">
-              {skill.icon}
+            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-[#1c1c1c] border border-slate-200 dark:border-[#2a2a2a] flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 group-hover:border-sky-500/40 dark:group-hover:border-[#38bdf8]/40 transition-all overflow-hidden p-1">
+              {skill.icon && (skill.icon.startsWith("http") || skill.icon.startsWith("/") || skill.icon.startsWith("data:")) ? (
+                <img src={skill.icon} alt={skill.name} className="w-8 h-8 object-contain rounded-md" />
+              ) : (
+                <span>{skill.icon || "⚡"}</span>
+              )}
             </div>
 
             <div className="space-y-1.5 flex-1 min-w-0">

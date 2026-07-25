@@ -37,11 +37,12 @@ export default function FixedLeftSidebar() {
         {/* Profile Avatar Frame */}
         <div className="relative w-full aspect-square max-w-[220px] lg:max-w-[240px] xl:max-w-[260px] mx-auto mb-4 xl:mb-5 rounded-2xl overflow-hidden border border-slate-200 dark:border-[#333333] group bg-slate-100 dark:bg-[#161616]">
           <Image
-            src="/abdullah-profile.png"
+            src={profile.profileImage || "/abdullah-profile.png"}
             alt={profile.name}
             fill
             className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
             priority
+            unoptimized={Boolean(profile.profileImage && profile.profileImage.startsWith("http"))}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 dark:from-[#111111]/80 via-transparent to-transparent opacity-60" />
         </div>
