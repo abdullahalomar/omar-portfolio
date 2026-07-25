@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Send, MapPin, CheckCircle2, Phone, Copy, Check } from "lucide-react";
+import { Mail, Send, MapPin, CheckCircle2, Phone, Copy, Check, Loader2 } from "lucide-react";
 import { usePortfolioData } from "@/context/PortfolioContext";
 
 export default function ContactFormSection() {
@@ -13,29 +13,52 @@ export default function ContactFormSection() {
     subject: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
+    if (!formData.name || !formData.email || !formData.message || isSubmitting) return;
 
-    addContactMessage({
-      name: formData.name,
-      email: formData.email,
-      subject: formData.subject || "Portfolio Inquiry",
-      message: formData.message,
-    });
+    setIsSubmitting(true);
 
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 4000);
+    try {
+      // 1. Save to Admin Inbox (Supabase + LocalStorage)
+      await addContactMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject || "General Collaboration",
+        message: formData.message,
+      });
+
+      // 2. Dispatch email notification to recipient via API route
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject || "General Collaboration",
+          message: formData.message,
+          recipientEmail: profile.email,
+        }),
+      });
+
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      }, 5000);
+    } catch (err) {
+      console.error("Failed to send contact submission:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const copyEmail = () => {
-    navigator.clipboard.writeText(profile.email || "abdullah.sqa@gmail.com");
+    navigator.clipboard.writeText(profile.email || "abdullahalomar048@gmail.com");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -175,10 +198,12 @@ export default function ContactFormSection() {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 rounded-full bg-sky-500 dark:bg-[#38bdf8] hover:bg-sky-600 dark:hover:bg-[#0ea5e9] text-white dark:text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(56,189,248,0.3)]"
+                  disabled={isSubmitting}
+                  className={`w-full py-3.5 px-6 rounded-full bg-sky-500 dark:bg-[#38bdf8] hover:bg-sky-600 dark:hover:bg-[#0ea5e9] text-white dark:text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(56,189,248,0.3)] ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+                    }`}
                 >
-                  <Send className="w-4 h-4" />
-                  <span>SEND MESSAGE</span>
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>{isSubmitting ? "SENDING MESSAGE..." : "SEND MESSAGE"}</span>
                 </button>
               </>
             )}

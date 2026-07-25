@@ -1137,6 +1137,42 @@ export default function AdminPage() {
               </form>
             </div>
 
+            {/* Email Notification Panel */}
+            <div className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-4">
+              <h3 className="text-sm font-bold text-sky-400 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-sky-400" />
+                <span>Contact Email Notifications & Inbox</span>
+              </h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Messages sent via the Contact Section are automatically saved to your <strong className="text-slate-200">Admin Inbox</strong> and forwarded to your email address.
+              </p>
+
+              <div className="space-y-3 pt-1">
+                <div>
+                  <label className="text-xs text-slate-400">Target Receiver Email</label>
+                  <input
+                    type="email"
+                    value={profile.email}
+                    onChange={(e) => updateProfile({ email: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-xs mt-1 font-mono focus:outline-none focus:border-sky-500"
+                  />
+                  <p className="text-[11px] text-slate-500 pt-1">
+                    Messages from website visitors will be sent to this email address.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-[#0f172a] border border-slate-800 text-xs space-y-1">
+                  <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Real-time Admin Inbox Enabled</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    All visitor inquiries appear instantly in your <button type="button" onClick={() => setActiveTab("inbox")} className="text-sky-400 underline">Admin Inbox</button> tab.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-4">
               <h3 className="text-sm font-bold text-rose-400 flex items-center gap-2">
                 <RotateCcw className="w-4 h-4" />

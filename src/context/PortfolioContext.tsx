@@ -126,7 +126,7 @@ const defaultProfile: ProfileData = {
   title: "Software Quality Assurance Engineer & Test Automation Specialist",
   bio: "I specialize in building bulletproof test automation frameworks, CI/CD quality gates, API regression suites, and high-concurrency performance benchmarks.",
   location: "Dhaka, Bangladesh • Available Remote",
-  email: "abdullah.sqa@gmail.com",
+  email: "abdullahalomar048@gmail.com",
   github: "https://github.com",
   linkedin: "https://linkedin.com",
   twitter: "https://twitter.com",
