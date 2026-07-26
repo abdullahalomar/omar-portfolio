@@ -55,57 +55,43 @@ export default function SpecializationsSection() {
   return (
     <section id="services" className="scroll-mt-12 space-y-8 pt-6">
       {/* Tag */}
-      <div className="section-tag">
-        <Wrench className="w-3.5 h-3.5 text-sky-500 dark:text-[#38bdf8]" />
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-[#10b981] text-xs font-mono font-medium tracking-wider uppercase">
+        <Wrench className="w-3.5 h-3.5" />
         <span>SPECIALIZATIONS</span>
       </div>
 
       {/* Main Headline */}
       <div className="space-y-4">
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-          Key <span className="text-sky-500 dark:text-[#38bdf8]">Specializations</span>
+          My <span className="text-emerald-500 dark:text-[#10b981]">Specializations</span>
         </h2>
         <p className="text-base text-slate-600 dark:text-[#999999] max-w-2xl">
           Comprehensive quality engineering solutions designed to automate manual effort, guarantee reliability, and accelerate product velocity.
         </p>
       </div>
 
-      {/* Specializations Matrix */}
-      <div className="space-y-4 pt-2">
+      {/* Specializations List */}
+      <div className="space-y-6 pt-2">
         {services.map((item, idx) => {
           const Icon = item.icon;
           return (
             <div
               key={idx}
-              className="group py-6 px-6 rounded-2xl bg-white dark:bg-[#141414] hover:bg-slate-50 dark:hover:bg-[#1a1a1a] border border-slate-200 dark:border-[#222222] hover:border-sky-500/40 dark:hover:border-[#38bdf8]/40 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden shadow-sm dark:shadow-none"
+              className="group p-8 lg:p-10 rounded-[32px] bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2a2a2a] hover:border-emerald-500/40 dark:hover:border-[#10b981]/40 hover:bg-slate-50/50 dark:hover:bg-[#252525]/50 transition-all duration-300 flex flex-col justify-between min-h-[200px] shadow-sm dark:shadow-none"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-[#38bdf8]/10 text-sky-500 dark:text-[#38bdf8] flex items-center justify-center shrink-0 border border-sky-200 dark:border-[#38bdf8]/20 group-hover:bg-sky-500 dark:group-hover:bg-[#38bdf8] group-hover:text-white dark:group-hover:text-black transition-all">
-                  <Icon className="w-6 h-6" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors duration-300 group-hover:text-emerald-500 dark:group-hover:text-[#10b981]">
+                    {item.title}
+                  </h3>
+                  <Icon className="w-8 h-8 text-emerald-500 dark:text-[#10b981] transition-transform duration-300 group-hover:scale-110" />
                 </div>
-
-                <div className="space-y-1 max-w-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-sky-500 dark:text-[#38bdf8] font-bold">0{idx + 1}.</span>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-[#38bdf8] transition-colors">
-                      {item.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-sm text-slate-600 dark:text-[#999999] leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
+                <p className="text-base text-slate-600 dark:text-[#999999] leading-relaxed">
+                  {item.desc}
+                </p>
               </div>
-
-              <div className="flex items-center justify-between md:justify-end gap-4 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-[#222222]">
-                <span className="text-xs font-mono text-slate-600 dark:text-[#aaaaaa] px-3 py-1 rounded-full bg-slate-100 dark:bg-[#1c1c1c] border border-slate-200 dark:border-[#2a2a2a]">
-                  {item.projects}
-                </span>
-
-                <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-[#1c1c1c] group-hover:bg-sky-500 dark:group-hover:bg-[#38bdf8] text-slate-500 dark:text-[#888888] group-hover:text-white dark:group-hover:text-black flex items-center justify-center transition-all">
-                  <ArrowUpRight className="w-4 h-4" />
-                </div>
+              <div className="mt-8 text-xs font-mono font-semibold tracking-wider text-slate-500 dark:text-[#888888] uppercase">
+                {item.projects}
               </div>
             </div>
           );

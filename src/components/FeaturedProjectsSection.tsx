@@ -1,238 +1,399 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   FolderKanban, 
   Play, 
   Terminal, 
-  Loader2
+  Loader2, 
+  Code, 
+  RotateCcw,
+  Wrench,
+  CheckCircle2
 } from "lucide-react";
 import { usePortfolioData } from "@/context/PortfolioContext";
+import { motion, AnimatePresence } from "framer-motion";
+
+const projectRunnerData: Record<string, {
+  imageUrl: string;
+  steps: string[];
+  logs: string[];
+  successSummary: {
+    title: string;
+    metrics: string;
+  };
+}> = {
+  "proj-1": {
+    imageUrl: "/projects/project-1.png",
+    steps: ["Setup", "Build", "E2E Playwright", "Report"],
+    logs: [
+      "[INFO] Launching Playwright E2E Runner v1.42...",
+      "[INFO] Target: Chrome, Firefox, WebKit browsers",
+      "[Chromium] Launching browser context...",
+      "[Chromium] GET /login -> 200 OK (84ms)",
+      "[Chromium] [ASSERT] Login validation: PASSED",
+      "[Firefox] GET /cart -> 200 OK (112ms)",
+      "[Firefox] [ASSERT] Cart total matching: PASSED",
+      "[WebKit] POST /checkout -> 201 Created (142ms)",
+      "[WebKit] [ASSERT] Order placement webhooks: PASSED",
+      "[SUCCESS] 18/18 E2E Scenarios Passed. Flaky rate: 0.00%"
+    ],
+    successSummary: {
+      title: "Playwright Suite Passed",
+      metrics: "18 Tests Run • 0 Failed • 2.14s"
+    }
+  },
+  "proj-2": {
+    imageUrl: "/projects/project-2.png",
+    steps: ["Setup", "Newman API", "Schema Check", "Report"],
+    logs: [
+      "[INFO] Initializing Postman API Runner v10.2...",
+      "[POST] /api/v1/auth/token -> 200 OK (22ms)",
+      "[ASSERT] Token validity and JWT validation: PASSED",
+      "[GET] /api/v1/accounts/acc_9921 -> 200 OK (31ms)",
+      "[ASSERT] JSON Schema matching OpenAPI spec: PASSED",
+      "[POST] /api/v1/transfer -> 200 OK (110ms)",
+      "[ASSERT] Transfer idempotency header check: PASSED",
+      "[SUCCESS] 350+ API Endpoints Verified. 0 Leaks."
+    ],
+    successSummary: {
+      title: "API Regressions Passed",
+      metrics: "350+ API Tests • 0 Failed • 0.82s"
+    }
+  },
+  "proj-3": {
+    imageUrl: "/projects/project-3.png",
+    steps: ["Setup", "K6 Cluster", "Load Injection", "Telemetry"],
+    logs: [
+      "[INFO] Starting distributed load test (Target: 10,000 VU)...",
+      "[Load] 2,500 Virtual Users active...",
+      "[Load] 5,000 Virtual Users active...",
+      "[Metrics] RPS: 8,400 RPS | p95 Latency: 120ms (Threshold < 200ms): PASSED",
+      "[Load] 10,000 Virtual Users active...",
+      "[Metrics] RPS: 15,200 RPS | p95 Latency: 142ms (Threshold < 200ms): PASSED",
+      "[Metrics] Error Rate: 0.00% across 50,000 requests.",
+      "[SUCCESS] Distributed JMeter load benchmark completed."
+    ],
+    successSummary: {
+      title: "Load Test Completed",
+      metrics: "10,000 VUs • 15,200 max RPS • 4.50s"
+    }
+  }
+};
 
 export default function FeaturedProjectsSection() {
   const { projects } = usePortfolioData();
 
-  const [activeTest, setActiveTest] = useState<string>("api-suite");
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [testLogs, setTestLogs] = useState<string[]>([]);
-  const [testStats, setTestStats] = useState({ passed: 0, failed: 0, totalTime: "0.00s" });
+  const [runningState, setRunningState] = useState<Record<string, {
+    status: "idle" | "running" | "completed";
+    currentStep: number;
+    logs: string[];
+    progress: number;
+  }>>({
+    "proj-1": { status: "idle", currentStep: 0, logs: [], progress: 0 },
+    "proj-2": { status: "idle", currentStep: 0, logs: [], progress: 0 },
+    "proj-3": { status: "idle", currentStep: 0, logs: [], progress: 0 },
+  });
 
-  const runTestSimulation = (suiteKey: string) => {
-    setIsRunning(true);
-    setTestLogs([]);
+  const intervalsRef = useRef<Record<string, NodeJS.Timeout>>({});
 
-    const suites: Record<string, { name: string; logs: string[]; passed: number; time: string }> = {
-      "api-suite": {
-        name: "FinTech Payment Gateway API Regression",
-        logs: [
-          "[INFO] Initializing Postman API Runner v10.2...",
-          "[POST] /api/v1/auth/token -> 200 OK (42ms)",
-          "[ASSERT] Bearer token JWT valid: PASSED",
-          "[POST] /api/v1/checkout/stripe -> 201 Created (120ms)",
-          "[ASSERT] Double charge idempotency check: PASSED",
-          "[GET] /api/v1/transactions/tx_8891 -> 200 OK (35ms)",
-          "[SUCCESS] 24/24 API Endpoints Verified. 0 Leaks Detected."
-        ],
-        passed: 24,
-        time: "0.82s"
-      },
-      "e2e-suite": {
-        name: "E-Commerce Checkout Playwright Suite",
-        logs: [
-          "[INFO] Launching Chromium, Firefox, WebKit browsers...",
-          "[TEST] Adding item to cart & applying discount code...",
-          "[ASSERT] Cart total calculation match: PASSED",
-          "[TEST] Guest checkout form validation & credit card stripe element...",
-          "[ASSERT] Order confirmation page URL redirected: PASSED",
-          "[SUCCESS] 18/18 E2E Scenarios Passed. Flaky test rate: 0.00%"
-        ],
-        passed: 18,
-        time: "2.14s"
-      },
-      "load-suite": {
-        name: "JMeter 10,000 Virtual Users Load Benchmark",
-        logs: [
-          "[INFO] K6 / JMeter load test starting (Target: 10,000 VU)...",
-          "[METRIC] 5,000 RPS achieved on Kubernetes Cluster...",
-          "[METRIC] p95 Latency: 142ms (Threshold < 200ms): PASSED",
-          "[METRIC] Error Rate: 0.00% across 50,000 HTTP requests",
-          "[SUCCESS] System certified for Black Friday traffic spike!"
-        ],
-        passed: 50,
-        time: "4.50s"
-      }
-    };
+  const startTest = (projId: string) => {
+    if (intervalsRef.current[projId]) {
+      clearInterval(intervalsRef.current[projId]);
+    }
 
-    const targetSuite = suites[suiteKey] || suites["api-suite"];
-    let stepIndex = 0;
+    const data = projectRunnerData[projId];
+    if (!data) return;
+
+    setRunningState((prev) => ({
+      ...prev,
+      [projId]: { status: "running", currentStep: 0, logs: [], progress: 0 }
+    }));
+
+    let logIndex = 0;
+    const totalLogs = data.logs.length;
+    const totalSteps = data.steps.length;
 
     const interval = setInterval(() => {
-      if (stepIndex < targetSuite.logs.length) {
-        const line = targetSuite.logs[stepIndex];
-        setTestLogs((prev) => [...prev, line]);
-        stepIndex++;
-      } else {
-        clearInterval(interval);
-        setIsRunning(false);
-        setTestStats({
-          passed: targetSuite.passed,
-          failed: 0,
-          totalTime: targetSuite.time
-        });
-      }
-    }, 400);
+      setRunningState((prev) => {
+        const currentProj = prev[projId];
+        if (logIndex < totalLogs) {
+          const nextLogs = [...currentProj.logs, data.logs[logIndex]];
+          const stepIndex = Math.min(
+            Math.floor((logIndex / totalLogs) * totalSteps),
+            totalSteps - 1
+          );
+          const nextProgress = Math.floor(((logIndex + 1) / totalLogs) * 100);
+          logIndex++;
+          return {
+            ...prev,
+            [projId]: {
+              ...currentProj,
+              logs: nextLogs,
+              currentStep: stepIndex,
+              progress: nextProgress
+            }
+          };
+        } else {
+          clearInterval(intervalsRef.current[projId]);
+          return {
+            ...prev,
+            [projId]: {
+              ...currentProj,
+              status: "completed",
+              progress: 100,
+              currentStep: totalSteps - 1
+            }
+          };
+        }
+      });
+    }, 450);
+
+    intervalsRef.current[projId] = interval;
   };
+
+  const resetTest = (projId: string) => {
+    if (intervalsRef.current[projId]) {
+      clearInterval(intervalsRef.current[projId]);
+    }
+    setRunningState((prev) => ({
+      ...prev,
+      [projId]: { status: "idle", currentStep: 0, logs: [], progress: 0 }
+    }));
+  };
+
+  useEffect(() => {
+    return () => {
+      Object.values(intervalsRef.current).forEach(clearInterval);
+    };
+  }, []);
 
   return (
     <section id="projects" className="scroll-mt-12 space-y-8 pt-6">
       {/* Tag */}
-      <div className="section-tag">
-        <FolderKanban className="w-3.5 h-3.5 text-sky-500 dark:text-[#38bdf8]" />
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-[#10b981] text-xs font-mono font-medium tracking-wider uppercase">
+        <FolderKanban className="w-3.5 h-3.5" />
         <span>PORTFOLIO</span>
       </div>
 
       {/* Main Headline */}
       <div className="space-y-4">
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-          Featured <span className="text-sky-500 dark:text-[#38bdf8]">Projects</span> & Test Suites
+          Featured <span className="text-emerald-500 dark:text-[#10b981]">Projects</span> & Sandbox
         </h2>
         <p className="text-base text-slate-600 dark:text-[#999999] max-w-2xl">
-          Real-world automation frameworks, CI pipelines, and performance benchmarks designed for enterprise reliability.
+          Real-world automation frameworks, CI pipelines, and performance benchmarks designed for enterprise reliability. Click "Run Live Test" on any card to see it in action.
         </p>
       </div>
 
-      {/* Projects Showcase Stream */}
-      <div className="space-y-4">
-        {projects.map((proj) => (
-          <div
-            key={proj.id}
-            className="p-6 rounded-2xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-[#222222] hover:border-sky-500/40 dark:hover:border-[#38bdf8]/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group shadow-sm dark:shadow-none"
-          >
-            <div className="space-y-2 max-w-xl">
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] font-mono text-sky-600 dark:text-[#38bdf8] bg-sky-50 dark:bg-[#38bdf8]/10 px-2.5 py-0.5 rounded border border-sky-200 dark:border-[#38bdf8]/20">
-                  {proj.metrics || proj.category}
-                </span>
-              </div>
+      {/* Projects Grid */}
+      <div className="space-y-8 pt-2">
+        {projects.map((proj) => {
+          const runner = projectRunnerData[proj.id] || projectRunnerData["proj-1"];
+          const state = runningState[proj.id] || { status: "idle", currentStep: 0, logs: [], progress: 0 };
+          const isInteractive = state.status !== "idle";
 
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-sky-500 dark:group-hover:text-[#38bdf8] transition-colors">
-                {proj.title}
-              </h3>
+          return (
+            <div
+              key={proj.id}
+              className="group grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 md:p-8 lg:p-10 rounded-[32px] bg-white dark:bg-[#1e1e1e] border border-slate-200 dark:border-[#2a2a2a] relative overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300"
+            >
+              {/* Left Column: Project Info */}
+              <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-emerald-600 dark:text-[#10b981] bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-medium">
+                      {proj.category}
+                    </span>
+                  </div>
 
-              <p className="text-sm text-slate-600 dark:text-[#999999] leading-relaxed">
-                {proj.description}
-              </p>
+                  <h3 className="text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight transition-colors group-hover:text-emerald-500 dark:group-hover:text-[#10b981]">
+                    {proj.title}
+                  </h3>
 
-              <div className="flex flex-wrap gap-1.5 pt-2">
-                {proj.tags.map((t, tIdx) => (
-                  <span
-                    key={tIdx}
-                    className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1c1c1c] text-slate-700 dark:text-[#aaaaaa] border border-slate-200 dark:border-[#2a2a2a]"
+                  {/* ROI / Impact metrics callout box */}
+                  <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 text-emerald-800 dark:text-emerald-400/90 text-xs leading-relaxed font-semibold font-mono">
+                    📈 IMPACT: {proj.metrics}
+                  </div>
+
+                  <p className="text-sm md:text-base text-slate-600 dark:text-[#999999] leading-relaxed">
+                    {proj.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    {proj.tags.map((t, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-[#252525] text-slate-700 dark:text-[#aaaaaa] border border-slate-200 dark:border-[#333]"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* CTAs */}
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      if (state.status === "running") return;
+                      if (state.status === "completed") resetTest(proj.id);
+                      else startTest(proj.id);
+                    }}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 dark:bg-[#10b981] dark:hover:bg-[#059669] text-white dark:text-black font-bold text-xs transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                   >
-                    {t}
-                  </span>
-                ))}
+                    {state.status === "running" ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Executing Suite...</span>
+                      </>
+                    ) : state.status === "completed" ? (
+                      <>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Reset Sandbox</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Run Live Test</span>
+                      </>
+                    )}
+                  </button>
+
+                  <a
+                    href={proj.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#252525] dark:hover:bg-[#2e2e2e] text-slate-900 dark:text-white font-semibold text-xs border border-slate-200 dark:border-[#333] transition-all"
+                  >
+                    <Code className="w-4 h-4" />
+                    <span>Repository</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Sandbox Screen Panel */}
+              <div className="lg:col-span-7 relative h-[300px] lg:h-auto min-h-[300px] w-full rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#151515] border border-slate-200 dark:border-[#2a2a2a] transition-all duration-300">
+                <AnimatePresence mode="wait">
+                  {!isInteractive ? (
+                    <motion.div
+                      key="mockup"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 w-full h-full cursor-pointer flex items-center justify-center"
+                      onClick={() => startTest(proj.id)}
+                    >
+                      <img 
+                        src={runner.imageUrl} 
+                        alt={proj.title}
+                        className="object-cover object-center w-full h-full select-none"
+                      />
+                      {/* Play overlay button on hover */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-emerald-500 dark:bg-[#10b981] text-white dark:text-black flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                          <Play className="w-6 h-6 fill-current translate-x-0.5" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="terminal"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className="absolute inset-0 bg-[#0d0d0d] p-5 flex flex-col justify-between font-mono text-xs text-slate-300"
+                    >
+                      {/* Terminal Stepper Header */}
+                      <div className="border-b border-zinc-800 pb-3 mb-3 shrink-0">
+                        <div className="flex items-center justify-between text-zinc-500 mb-2">
+                          <span className="flex items-center gap-1.5 text-[10px]">
+                            <Terminal className="w-3.5 h-3.5 text-emerald-500" />
+                            AUTOMATED SUITE RUNNER
+                          </span>
+                          <span className="text-[10px] font-bold text-emerald-500">{state.progress}%</span>
+                        </div>
+
+                        {/* Pipeline Progress Indicator */}
+                        <div className="flex items-center justify-between gap-1 pt-1 overflow-x-auto">
+                          {runner.steps.map((step, sIdx) => {
+                            const isActive = state.currentStep === sIdx && state.status === "running";
+                            const isDone = state.currentStep > sIdx || state.status === "completed";
+                            return (
+                              <React.Fragment key={step}>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${
+                                    isDone 
+                                      ? "bg-emerald-500 text-white dark:bg-[#10b981] dark:text-black" 
+                                      : isActive 
+                                      ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500 animate-pulse" 
+                                      : "bg-[#1e1e1e] text-zinc-600 border border-zinc-800"
+                                  }`}>
+                                    {isDone ? "✓" : sIdx + 1}
+                                  </div>
+                                  <span className={`text-[9px] ${
+                                    isDone 
+                                      ? "text-emerald-500 dark:text-[#10b981]" 
+                                      : isActive 
+                                      ? "text-slate-100 font-bold" 
+                                      : "text-zinc-600"
+                                  }`}>
+                                    {step}
+                                  </span>
+                                </div>
+                                {sIdx < runner.steps.length - 1 && (
+                                  <div className={`h-[1px] flex-1 min-w-[10px] ${isDone ? "bg-emerald-500/40" : "bg-zinc-800"}`} />
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Logs Output */}
+                      <div className="flex-1 overflow-y-auto space-y-1.5 pr-2 select-none scrollbar-thin scrollbar-thumb-zinc-800">
+                        {state.logs.map((log, lIdx) => (
+                          <div key={lIdx} className="flex items-start gap-2 leading-relaxed text-[11px]">
+                            <span className="text-emerald-500 select-none">&gt;</span>
+                            <span className={log.includes("SUCCESS") || log.includes("PASSED") ? "text-emerald-400 font-semibold" : "text-zinc-300"}>
+                              {log}
+                            </span>
+                          </div>
+                        ))}
+                        {state.status === "running" && (
+                          <div className="flex items-center gap-1.5 text-emerald-500 font-bold animate-pulse text-[11px]">
+                            <span>&gt;</span>
+                            <span className="w-1.5 h-3 bg-emerald-500" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Success HUD */}
+                      {state.status === "completed" && (
+                        <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between bg-emerald-950/20 -mx-5 -mb-5 p-4 rounded-b-2xl shrink-0">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                            <div>
+                              <div className="text-[11px] font-bold text-white uppercase tracking-wider">{runner.successSummary.title}</div>
+                              <div className="text-[9px] text-zinc-400">{runner.successSummary.metrics}</div>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => resetTest(proj.id)}
+                            className="px-3 py-1 rounded bg-[#1c1c1c] hover:bg-[#252525] text-zinc-400 hover:text-white border border-zinc-800 transition-all text-[10px]"
+                          >
+                            Close Terminal
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
-
-            <div className="shrink-0 pt-2 md:pt-0">
-              <a
-                href={proj.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-[#1e1e1e] hover:bg-sky-500 dark:hover:bg-[#38bdf8] text-slate-900 dark:text-white hover:text-white dark:hover:text-black font-mono font-bold text-xs border border-slate-200 dark:border-[#2a2a2a] transition-all"
-              >
-                <span>CODE REPO</span>
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Interactive SQA Test Runner Widget */}
-      <div className="p-6 md:p-8 border border-sky-500/30 dark:border-[#38bdf8]/30 rounded-3xl bg-white dark:bg-[#161616] shadow-lg dark:shadow-none relative overflow-hidden space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-[#2a2a2a] pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-[#38bdf8]/15 text-sky-500 dark:text-[#38bdf8] flex items-center justify-center border border-sky-200 dark:border-[#38bdf8]/30">
-              <Terminal className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>Interactive Live Test Execution Sandbox</span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-sky-50 dark:bg-[#38bdf8]/20 text-sky-600 dark:text-[#38bdf8]">LIVE</span>
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-[#888888]">Run simulated automated suites directly from your browser</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <select
-              value={activeTest}
-              onChange={(e) => setActiveTest(e.target.value)}
-              className="bg-slate-100 dark:bg-[#1e1e1e] border border-slate-300 dark:border-[#333333] text-slate-900 dark:text-white text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-sky-500 dark:focus:border-[#38bdf8]"
-            >
-              <option value="api-suite">FinTech Postman API Suite</option>
-              <option value="e2e-suite">Playwright E2E Checkout Suite</option>
-              <option value="load-suite">K6 10k VU Load Benchmark</option>
-            </select>
-
-            <button
-              onClick={() => runTestSimulation(activeTest)}
-              disabled={isRunning}
-              className="px-4 py-2 rounded-lg bg-sky-500 dark:bg-[#38bdf8] hover:bg-sky-600 dark:hover:bg-[#0ea5e9] text-white dark:text-black font-bold text-xs flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(56,189,248,0.2)] disabled:opacity-50"
-            >
-              {isRunning ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Executing...</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Run Suite</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Live Terminal Window */}
-        <div className="bg-slate-900 dark:bg-[#0b0b0b] border border-slate-800 dark:border-[#262626] rounded-xl p-4 font-mono text-xs text-slate-200 dark:text-slate-300 min-h-[160px] max-h-[220px] overflow-y-auto space-y-1 shadow-inner">
-          {testLogs.length === 0 && !isRunning && (
-            <div className="text-slate-500 dark:text-[#666666] italic pt-8 text-center">
-              Click &quot;Run Suite&quot; to launch live automated assertion tests...
-            </div>
-          )}
-          {testLogs.map((log, lIdx) => (
-            <div key={lIdx} className="flex items-center gap-2">
-              <span className="text-sky-400 dark:text-[#38bdf8]">&gt;</span>
-              <span className={log.includes("PASSED") || log.includes("SUCCESS") ? "text-sky-400 dark:text-[#38bdf8] font-semibold" : "text-slate-300"}>
-                {log}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Test Execution Summary Telemetry */}
-        {testStats.passed > 0 && (
-          <div className="grid grid-cols-3 gap-4 pt-2 border-t border-slate-200 dark:border-[#2a2a2a]">
-            <div className="text-center">
-              <div className="text-xs text-slate-500 dark:text-[#888888]">Passed Assertions</div>
-              <div className="text-xl font-bold font-mono text-sky-500 dark:text-[#38bdf8]">{testStats.passed}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-slate-500 dark:text-[#888888]">Defects Found</div>
-              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">0</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-slate-500 dark:text-[#888888]">Total Execution Time</div>
-              <div className="text-xl font-bold font-mono text-sky-500 dark:text-[#38bdf8]">{testStats.totalTime}</div>
-            </div>
-          </div>
-        )}
+          );
+        })}
       </div>
     </section>
   );
