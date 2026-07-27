@@ -5,7 +5,10 @@ import Link from "next/link";
 import { 
   usePortfolioData, 
   Project, 
-  BlogPost 
+  BlogPost,
+  SpecializationItem,
+  ExperienceItem,
+  EducationItem
 } from "@/context/PortfolioContext";
 import CloudinaryImageUploader from "@/components/CloudinaryImageUploader";
 import { 
@@ -31,7 +34,10 @@ import {
   EyeOff,
   Cloud,
   ArrowRight,
-  Upload
+  Upload,
+  Wrench,
+  Briefcase,
+  GraduationCap
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -43,6 +49,9 @@ export default function AdminPage() {
     skills,
     certifications,
     messages,
+    specializations,
+    experiences,
+    educations,
     isCloudConnected,
     updateProfile,
     updateHero,
@@ -58,6 +67,15 @@ export default function AdminPage() {
     deleteCertification,
     toggleMessageRead,
     deleteMessage,
+    addSpecialization,
+    updateSpecialization,
+    deleteSpecialization,
+    addExperience,
+    updateExperience,
+    deleteExperience,
+    addEducation,
+    updateEducation,
+    deleteEducation,
     resetToDefaults,
   } = usePortfolioData();
 
@@ -68,11 +86,42 @@ export default function AdminPage() {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<
-    "overview" | "profile" | "projects" | "blogs" | "skills" | "certs" | "inbox" | "settings"
+    "overview" | "profile" | "specializations" | "resume" | "projects" | "blogs" | "skills" | "certs" | "inbox" | "settings"
   >("overview");
 
   // Save Indicator
   const [savedStatus, setSavedStatus] = useState(false);
+
+  // Specialization Modal State
+  const [isSpecModalOpen, setIsSpecModalOpen] = useState(false);
+  const [editingSpec, setEditingSpec] = useState<SpecializationItem | null>(null);
+  const [specForm, setSpecForm] = useState({
+    title: "",
+    desc: "",
+    projects: "",
+    icon: "Wrench",
+  });
+
+  // Experience Modal State
+  const [isExpModalOpen, setIsExpModalOpen] = useState(false);
+  const [editingExp, setEditingExp] = useState<ExperienceItem | null>(null);
+  const [expForm, setExpForm] = useState({
+    period: "",
+    role: "",
+    company: "",
+    description: "",
+    skills: "",
+  });
+
+  // Education Modal State
+  const [isEduModalOpen, setIsEduModalOpen] = useState(false);
+  const [editingEdu, setEditingEdu] = useState<EducationItem | null>(null);
+  const [eduForm, setEduForm] = useState({
+    period: "",
+    degree: "",
+    institution: "",
+    description: "",
+  });
 
   // Modal / Form States
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -268,6 +317,90 @@ export default function AdminPage() {
     triggerSaveNotification();
   };
 
+  // Handlers for Specialization CRUD
+  const openNewSpecModal = () => {
+    setEditingSpec(null);
+    setSpecForm({ title: "", desc: "", projects: "", icon: "Terminal" });
+    setIsSpecModalOpen(true);
+  };
+
+  const openEditSpecModal = (s: SpecializationItem) => {
+    setEditingSpec(s);
+    setSpecForm({ title: s.title, desc: s.desc, projects: s.projects, icon: s.icon || "Wrench" });
+    setIsSpecModalOpen(true);
+  };
+
+  const handleSaveSpec = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingSpec) {
+      updateSpecialization(editingSpec.id, specForm);
+    } else {
+      addSpecialization(specForm);
+    }
+    setIsSpecModalOpen(false);
+    triggerSaveNotification();
+  };
+
+  // Handlers for Experience CRUD
+  const openNewExpModal = () => {
+    setEditingExp(null);
+    setExpForm({ period: "2024 - Present", role: "", company: "", description: "", skills: "Playwright, TypeScript" });
+    setIsExpModalOpen(true);
+  };
+
+  const openEditExpModal = (exp: ExperienceItem) => {
+    setEditingExp(exp);
+    setExpForm({
+      period: exp.period,
+      role: exp.role,
+      company: exp.company,
+      description: exp.description,
+      skills: exp.skills ? exp.skills.join(", ") : "",
+    });
+    setIsExpModalOpen(true);
+  };
+
+  const handleSaveExp = (e: React.FormEvent) => {
+    e.preventDefault();
+    const skillList = expForm.skills.split(",").map((s) => s.trim()).filter(Boolean);
+    if (editingExp) {
+      updateExperience(editingExp.id, { ...expForm, skills: skillList });
+    } else {
+      addExperience({ ...expForm, skills: skillList });
+    }
+    setIsExpModalOpen(false);
+    triggerSaveNotification();
+  };
+
+  // Handlers for Education CRUD
+  const openNewEduModal = () => {
+    setEditingEdu(null);
+    setEduForm({ period: "2019 - 2023", degree: "", institution: "", description: "" });
+    setIsEduModalOpen(true);
+  };
+
+  const openEditEduModal = (edu: EducationItem) => {
+    setEditingEdu(edu);
+    setEduForm({
+      period: edu.period,
+      degree: edu.degree,
+      institution: edu.institution,
+      description: edu.description,
+    });
+    setIsEduModalOpen(true);
+  };
+
+  const handleSaveEdu = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingEdu) {
+      updateEducation(editingEdu.id, eduForm);
+    } else {
+      addEducation(eduForm);
+    }
+    setIsEduModalOpen(false);
+    triggerSaveNotification();
+  };
+
   // Handlers for Skill & Cert
   const handleAddSkill = (e: React.FormEvent) => {
     e.preventDefault();
@@ -382,6 +515,36 @@ export default function AdminPage() {
             >
               <User className="w-4 h-4" />
               <span>Profile & Hero</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("specializations")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "specializations" ? "bg-sky-500 text-black font-bold shadow-md" : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Wrench className="w-4 h-4" />
+                <span>Specializations</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
+                {specializations.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("resume")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "resume" ? "bg-sky-500 text-black font-bold shadow-md" : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Briefcase className="w-4 h-4" />
+                <span>Education & Exp</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
+                {experiences.length + educations.length}
+              </span>
             </button>
 
             <button
@@ -724,6 +887,223 @@ export default function AdminPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: SPECIALIZATIONS */}
+        {activeTab === "specializations" && (
+          <div className="space-y-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Specializations & Services</h1>
+                <p className="text-xs text-slate-400">Manage quality engineering specializations displayed on the homepage.</p>
+              </div>
+
+              <button
+                onClick={openNewSpecModal}
+                className="px-5 py-2.5 rounded-full bg-sky-500 text-black font-bold text-xs flex items-center gap-2 hover:bg-sky-400 transition-colors shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Specialization</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {specializations.map((spec) => (
+                <div
+                  key={spec.id}
+                  className="p-6 rounded-3xl bg-[#111827] border border-slate-800 flex flex-col justify-between space-y-4 hover:border-slate-700 transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                        Icon: {spec.icon || "Wrench"}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditSpecModal(spec)}
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Delete "${spec.title}"?`)) {
+                              deleteSpecialization(spec.id);
+                              triggerSaveNotification();
+                            }
+                          }}
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <h3 className="text-lg font-bold text-white">{spec.title}</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">{spec.desc}</p>
+                  </div>
+
+                  {spec.projects && (
+                    <div className="text-[11px] font-mono text-emerald-400 pt-2 border-t border-slate-800/80 font-bold">
+                      ⚡ {spec.projects}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB: EDUCATION & EXPERIENCE */}
+        {activeTab === "resume" && (
+          <div className="space-y-10">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Education & Experience</h1>
+                <p className="text-xs text-slate-400">Manage work history timeline and academic degrees.</p>
+              </div>
+            </div>
+
+            {/* Work Experiences Section */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-sky-400" />
+                  <h2 className="text-lg font-bold text-white">Work Experience</h2>
+                </div>
+                <button
+                  onClick={openNewExpModal}
+                  className="px-4 py-2 rounded-xl bg-sky-500 text-black font-bold text-xs flex items-center gap-1.5 hover:bg-sky-400 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Experience</span>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {experiences.map((exp) => (
+                  <div
+                    key={exp.id}
+                    className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-3 hover:border-slate-700 transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                            {exp.period}
+                          </span>
+                          <span className="text-xs text-slate-400 font-semibold">{exp.company}</span>
+                        </div>
+                        <h3 className="text-lg font-extrabold text-white">{exp.role}</h3>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => openEditExpModal(exp)}
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Delete "${exp.role} at ${exp.company}"?`)) {
+                              deleteExperience(exp.id);
+                              triggerSaveNotification();
+                            }
+                          }}
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed">{exp.description}</p>
+
+                    {exp.skills && exp.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {exp.skills.map((skill, sIdx) => (
+                          <span
+                            key={sIdx}
+                            className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700"
+                          >
+                            #{skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Academic Education Section */}
+            <div className="space-y-6 pt-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-sky-400" />
+                  <h2 className="text-lg font-bold text-white">Academic Foundation</h2>
+                </div>
+                <button
+                  onClick={openNewEduModal}
+                  className="px-4 py-2 rounded-xl bg-sky-500 text-black font-bold text-xs flex items-center gap-1.5 hover:bg-sky-400 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Education</span>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {educations.map((edu) => (
+                  <div
+                    key={edu.id}
+                    className="p-6 rounded-3xl bg-[#111827] border border-slate-800 space-y-2 hover:border-slate-700 transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                            {edu.period}
+                          </span>
+                          <span className="text-xs text-slate-400 font-semibold">{edu.institution}</span>
+                        </div>
+                        <h3 className="text-lg font-extrabold text-white">{edu.degree}</h3>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => openEditEduModal(edu)}
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Delete "${edu.degree}"?`)) {
+                              deleteEducation(edu.id);
+                              triggerSaveNotification();
+                            }
+                          }}
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed">{edu.description}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -1407,6 +1787,260 @@ export default function AdminPage() {
                   className="px-5 py-2 rounded-xl bg-sky-500 text-black font-bold text-xs"
                 >
                   Save Blog
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Specialization Modal */}
+      {isSpecModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-md w-full bg-[#111827] border border-slate-800 rounded-3xl p-6 space-y-6 text-slate-100 shadow-2xl">
+            <h2 className="text-xl font-extrabold">
+              {editingSpec ? "Edit Specialization" : "Add Specialization"}
+            </h2>
+
+            <form onSubmit={handleSaveSpec} className="space-y-4">
+              <div>
+                <label className="text-xs text-slate-400">Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Test Automation Frameworks"
+                  value={specForm.title}
+                  onChange={(e) => setSpecForm({ ...specForm, title: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Description</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Detailed description of service..."
+                  value={specForm.desc}
+                  onChange={(e) => setSpecForm({ ...specForm, desc: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Projects / Highlight Metric</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 45+ Frameworks Built"
+                  value={specForm.projects}
+                  onChange={(e) => setSpecForm({ ...specForm, projects: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Icon</label>
+                <select
+                  value={specForm.icon}
+                  onChange={(e) => setSpecForm({ ...specForm, icon: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                >
+                  <option value="Terminal">Terminal</option>
+                  <option value="Cpu">Cpu</option>
+                  <option value="Gauge">Gauge</option>
+                  <option value="Smartphone">Smartphone</option>
+                  <option value="GitBranch">GitBranch</option>
+                  <option value="ShieldAlert">ShieldAlert</option>
+                  <option value="Wrench">Wrench</option>
+                  <option value="Code">Code</option>
+                  <option value="Layers">Layers</option>
+                  <option value="Zap">Zap</option>
+                  <option value="CheckCircle">CheckCircle</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsSpecModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-sky-500 text-black font-bold text-xs"
+                >
+                  Save Specialization
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Experience Modal */}
+      {isExpModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-md w-full bg-[#111827] border border-slate-800 rounded-3xl p-6 space-y-6 text-slate-100 shadow-2xl">
+            <h2 className="text-xl font-extrabold">
+              {editingExp ? "Edit Work Experience" : "Add Work Experience"}
+            </h2>
+
+            <form onSubmit={handleSaveExp} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-400">Time Period</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 2023 - Present"
+                    value={expForm.period}
+                    onChange={(e) => setExpForm({ ...expForm, period: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-400">Company Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Enterprise QA Labs"
+                    value={expForm.company}
+                    onChange={(e) => setExpForm({ ...expForm, company: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Role / Job Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. SQA & Automation Engineer"
+                  value={expForm.role}
+                  onChange={(e) => setExpForm({ ...expForm, role: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Description</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Responsibilities and achievements..."
+                  value={expForm.description}
+                  onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Skills / Tools (comma separated)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Playwright, TypeScript, Docker, JMeter"
+                  value={expForm.skills}
+                  onChange={(e) => setExpForm({ ...expForm, skills: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsExpModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-sky-500 text-black font-bold text-xs"
+                >
+                  Save Experience
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Education Modal */}
+      {isEduModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-md w-full bg-[#111827] border border-slate-800 rounded-3xl p-6 space-y-6 text-slate-100 shadow-2xl">
+            <h2 className="text-xl font-extrabold">
+              {editingEdu ? "Edit Education" : "Add Education"}
+            </h2>
+
+            <form onSubmit={handleSaveEdu} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-400">Time Period</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 2015 - 2019"
+                    value={eduForm.period}
+                    onChange={(e) => setEduForm({ ...eduForm, period: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-400">Institution / University</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Dhaka University of Engineering & Tech"
+                    value={eduForm.institution}
+                    onChange={(e) => setEduForm({ ...eduForm, institution: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Degree / Qualification</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. B.Sc. in Computer Science & Engineering"
+                  value={eduForm.degree}
+                  onChange={(e) => setEduForm({ ...eduForm, degree: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-400">Description</label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Major subjects, thesis topic, honors, etc."
+                  value={eduForm.description}
+                  onChange={(e) => setEduForm({ ...eduForm, description: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-700 text-xs mt-1"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEduModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-sky-500 text-black font-bold text-xs"
+                >
+                  Save Education
                 </button>
               </div>
             </form>

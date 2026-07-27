@@ -60,6 +60,31 @@ export interface BlogPost {
   };
 }
 
+export interface SpecializationItem {
+  id: string;
+  title: string;
+  desc: string;
+  projects: string;
+  icon: string;
+}
+
+export interface ExperienceItem {
+  id: string;
+  period: string;
+  role: string;
+  company: string;
+  description: string;
+  skills: string[];
+}
+
+export interface EducationItem {
+  id: string;
+  period: string;
+  degree: string;
+  institution: string;
+  description: string;
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -94,6 +119,9 @@ interface PortfolioContextType {
   skills: Skill[];
   certifications: Certification[];
   messages: ContactMessage[];
+  specializations: SpecializationItem[];
+  experiences: ExperienceItem[];
+  educations: EducationItem[];
   isCloudConnected: boolean;
   
   // Actions
@@ -117,6 +145,18 @@ interface PortfolioContextType {
   addContactMessage: (msg: Omit<ContactMessage, "id" | "date" | "read">) => void;
   toggleMessageRead: (id: string) => void;
   deleteMessage: (id: string) => void;
+  
+  addSpecialization: (spec: Omit<SpecializationItem, "id">) => void;
+  updateSpecialization: (id: string, spec: Partial<SpecializationItem>) => void;
+  deleteSpecialization: (id: string) => void;
+  
+  addExperience: (exp: Omit<ExperienceItem, "id">) => void;
+  updateExperience: (id: string, exp: Partial<ExperienceItem>) => void;
+  deleteExperience: (id: string) => void;
+  
+  addEducation: (edu: Omit<EducationItem, "id">) => void;
+  updateEducation: (id: string, edu: Partial<EducationItem>) => void;
+  deleteEducation: (id: string) => void;
   
   resetToDefaults: () => void;
 }
@@ -260,6 +300,88 @@ const defaultMessages: ContactMessage[] = [
   }
 ];
 
+const defaultSpecializations: SpecializationItem[] = [
+  {
+    id: "spec-1",
+    title: "Test Automation Frameworks",
+    desc: "Building scalable, maintainable Page Object Model (POM) suites in TypeScript/Python using Playwright, Selenium, and Cypress with zero flaky tests.",
+    projects: "45+ Frameworks Built",
+    icon: "Terminal",
+  },
+  {
+    id: "spec-2",
+    title: "API & Microservices Testing",
+    desc: "Automating REST, GraphQL, and gRPC endpoints with Postman, REST Assured, and Karat. Contract validation and automated schema regression.",
+    projects: "300+ Endpoints Tested",
+    icon: "Cpu",
+  },
+  {
+    id: "spec-3",
+    title: "Performance & Load Engineering",
+    desc: "Simulating tens of thousands of concurrent users using JMeter & K6. Bottleneck identification, API response latency profiling & Grafana dashboards.",
+    projects: "50+ Load Audits",
+    icon: "Gauge",
+  },
+  {
+    id: "spec-4",
+    title: "Mobile App QA (iOS & Android)",
+    desc: "Automating native and hybrid mobile app testing using Appium & BrowserStack across physical devices and emulators.",
+    projects: "25+ Apps Certified",
+    icon: "Smartphone",
+  },
+  {
+    id: "spec-5",
+    title: "CI/CD & Quality Gates",
+    desc: "Embedding automated quality checks into GitHub Actions, Jenkins, and GitLab CI pipelines to prevent buggy code from merging into main.",
+    projects: "60+ CI Pipelines",
+    icon: "GitBranch",
+  },
+  {
+    id: "spec-6",
+    title: "Security & Vulnerability QA",
+    desc: "Performing OWASP Top 10 security audits, SQL injection prevention checks, XSS payload testing, and API authentication validation.",
+    projects: "40+ Security Audits",
+    icon: "ShieldAlert",
+  },
+];
+
+const defaultExperiences: ExperienceItem[] = [
+  {
+    id: "exp-1",
+    period: "2023 - Present",
+    role: "SQA & Automation Engineer",
+    company: "Enterprise QA Labs",
+    description: "Spearheaded enterprise Playwright & Cypress automation architecture across 12 microservices. Reduced release regression cycle duration from 5 days to 45 minutes with parallel Docker execution.",
+    skills: ["Playwright", "TypeScript", "CI/CD", "Docker", "JMeter", "K8s"],
+  },
+  {
+    id: "exp-2",
+    period: "2021 - 2023",
+    role: "Automation QA Engineer",
+    company: "FinTech Quality Systems",
+    description: "Built end-to-end API test suites using Postman and REST Assured for high-volume payment processing systems. Achieved 99.8% test coverage and eliminated critical production leaks.",
+    skills: ["Postman", "REST Assured", "Java", "Selenium", "SQL", "Jenkins"],
+  },
+  {
+    id: "exp-3",
+    period: "2019 - 2021",
+    role: "Software QA Engineer",
+    company: "Apex Tech Studios",
+    description: "Executed functional, cross-browser, and mobile app testing using Appium & Selenium. Collaborated with dev teams to implement zero-bug bounce release policies.",
+    skills: ["Selenium", "Appium", "JIRA", "TestNG", "Git", "BrowserStack"],
+  },
+];
+
+const defaultEducations: EducationItem[] = [
+  {
+    id: "edu-1",
+    period: "2015 - 2019",
+    degree: "B.Sc. in Computer Science & Engineering",
+    institution: "Dhaka University of Engineering & Technology",
+    description: "Focused on Software Engineering, Database Systems, Automated Software Testing, and Operating Systems. Graduated with Honors.",
+  },
+];
+
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
@@ -270,6 +392,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [skills, setSkills] = useState<Skill[]>(defaultSkills);
   const [certifications, setCertifications] = useState<Certification[]>(defaultCertifications);
   const [messages, setMessages] = useState<ContactMessage[]>(defaultMessages);
+  const [specializations, setSpecializations] = useState<SpecializationItem[]>(defaultSpecializations);
+  const [experiences, setExperiences] = useState<ExperienceItem[]>(defaultExperiences);
+  const [educations, setEducations] = useState<EducationItem[]>(defaultEducations);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load data on mount from Supabase DB or LocalStorage
@@ -378,6 +503,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           const savedSkills = localStorage.getItem("portfolio_skills");
           const savedCerts = localStorage.getItem("portfolio_certifications");
           const savedMsgs = localStorage.getItem("portfolio_messages");
+          const savedSpecs = localStorage.getItem("portfolio_specializations");
+          const savedExps = localStorage.getItem("portfolio_experiences");
+          const savedEdus = localStorage.getItem("portfolio_educations");
 
           if (savedProfile) setProfile(JSON.parse(savedProfile));
           if (savedHero) setHero(JSON.parse(savedHero));
@@ -386,6 +514,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
           if (savedSkills) setSkills(JSON.parse(savedSkills));
           if (savedCerts) setCertifications(JSON.parse(savedCerts));
           if (savedMsgs) setMessages(JSON.parse(savedMsgs));
+          if (savedSpecs) setSpecializations(JSON.parse(savedSpecs));
+          if (savedExps) setExperiences(JSON.parse(savedExps));
+          if (savedEdus) setEducations(JSON.parse(savedEdus));
         } catch (e) {
           console.error("Failed loading from localStorage", e);
         }
@@ -407,10 +538,13 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("portfolio_skills", JSON.stringify(skills));
       localStorage.setItem("portfolio_certifications", JSON.stringify(certifications));
       localStorage.setItem("portfolio_messages", JSON.stringify(messages));
+      localStorage.setItem("portfolio_specializations", JSON.stringify(specializations));
+      localStorage.setItem("portfolio_experiences", JSON.stringify(experiences));
+      localStorage.setItem("portfolio_educations", JSON.stringify(educations));
     } catch (e) {
       console.error("Failed caching to localStorage", e);
     }
-  }, [profile, hero, projects, blogs, skills, certifications, messages, isLoaded]);
+  }, [profile, hero, projects, blogs, skills, certifications, messages, specializations, experiences, educations, isLoaded]);
 
   const updateProfile = async (data: Partial<ProfileData>) => {
     const updated = { ...profile, ...data };
@@ -620,6 +754,45 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const addSpecialization = async (spec: Omit<SpecializationItem, "id">) => {
+    const newSpec: SpecializationItem = { ...spec, id: "spec-" + Date.now() };
+    setSpecializations((prev) => [...prev, newSpec]);
+  };
+
+  const updateSpecialization = async (id: string, spec: Partial<SpecializationItem>) => {
+    setSpecializations((prev) => prev.map((item) => (item.id === id ? { ...item, ...spec } : item)));
+  };
+
+  const deleteSpecialization = async (id: string) => {
+    setSpecializations((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const addExperience = async (exp: Omit<ExperienceItem, "id">) => {
+    const newExp: ExperienceItem = { ...exp, id: "exp-" + Date.now() };
+    setExperiences((prev) => [newExp, ...prev]);
+  };
+
+  const updateExperience = async (id: string, exp: Partial<ExperienceItem>) => {
+    setExperiences((prev) => prev.map((item) => (item.id === id ? { ...item, ...exp } : item)));
+  };
+
+  const deleteExperience = async (id: string) => {
+    setExperiences((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const addEducation = async (edu: Omit<EducationItem, "id">) => {
+    const newEdu: EducationItem = { ...edu, id: "edu-" + Date.now() };
+    setEducations((prev) => [...prev, newEdu]);
+  };
+
+  const updateEducation = async (id: string, edu: Partial<EducationItem>) => {
+    setEducations((prev) => prev.map((item) => (item.id === id ? { ...item, ...edu } : item)));
+  };
+
+  const deleteEducation = async (id: string) => {
+    setEducations((prev) => prev.filter((item) => item.id !== id));
+  };
+
   const resetToDefaults = () => {
     setProfile(defaultProfile);
     setHero(defaultHero);
@@ -628,6 +801,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setSkills(defaultSkills);
     setCertifications(defaultCertifications);
     setMessages(defaultMessages);
+    setSpecializations(defaultSpecializations);
+    setExperiences(defaultExperiences);
+    setEducations(defaultEducations);
     localStorage.clear();
   };
 
@@ -641,6 +817,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         skills,
         certifications,
         messages,
+        specializations,
+        experiences,
+        educations,
         isCloudConnected: isSupabaseConfigured,
         updateProfile,
         updateHero,
@@ -657,6 +836,15 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         addContactMessage,
         toggleMessageRead,
         deleteMessage,
+        addSpecialization,
+        updateSpecialization,
+        deleteSpecialization,
+        addExperience,
+        updateExperience,
+        deleteExperience,
+        addEducation,
+        updateEducation,
+        deleteEducation,
         resetToDefaults,
       }}
     >
