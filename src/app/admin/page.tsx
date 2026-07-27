@@ -81,7 +81,12 @@ export default function AdminPage() {
 
   // Authentication Lock state
   const [passcode, setPasscode] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("admin_authenticated") === "true";
+    }
+    return false;
+  });
   const [passcodeError, setPasscodeError] = useState(false);
 
   // Active Tab
@@ -180,11 +185,21 @@ export default function AdminPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === "1234" || passcode === "admin") {
+    if (passcode === "16795200") {
       setIsAuthenticated(true);
       setPasscodeError(false);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("admin_authenticated", "true");
+      }
     } else {
       setPasscodeError(true);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("admin_authenticated");
     }
   };
 
@@ -436,7 +451,7 @@ export default function AdminPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1 text-left">
-              <label className="text-xs text-slate-400 font-medium">Passcode (Default: 1234)</label>
+              <label className="text-xs text-slate-400 font-medium">Passcode</label>
               <input
                 type="password"
                 required
@@ -446,7 +461,7 @@ export default function AdminPage() {
                 className="w-full px-4 py-3 rounded-xl bg-[#0f172a] border border-slate-700 text-white text-sm focus:outline-none focus:border-sky-500"
               />
               {passcodeError && (
-                <p className="text-xs text-rose-400 pt-1">Incorrect passcode. Try 1234.</p>
+                <p className="text-xs text-rose-400 pt-1">Incorrect passcode. Please try again.</p>
               )}
             </div>
 
@@ -638,7 +653,7 @@ export default function AdminPage() {
           </Link>
 
           <button
-            onClick={() => setIsAuthenticated(false)}
+            onClick={handleLogout}
             className="w-full py-2 text-slate-500 hover:text-rose-400 text-xs flex items-center justify-center gap-1 transition-colors"
           >
             <Lock className="w-3.5 h-3.5" />
